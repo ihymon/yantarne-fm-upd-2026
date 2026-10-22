@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight } from './Icons'
 
 const DUR = 6000
 
-// Фото-слайдер у hero (режим «Фото»). Пауза при наведенні та коли вкладка прихована.
+// Фото-слайдер у hero (режим «Фото»). Гортається автоматично; пауза лише коли вкладка прихована.
 export default function HeroSlider({ active, heroRef }) {
   const [i, setI] = useState(0)
   const [run, setRun] = useState(0) // перезапуск анімації смужки прогресу
@@ -37,22 +37,13 @@ export default function HeroSlider({ active, heroRef }) {
     }
   }, [active, paused, i, run, go])
 
-  // пауза: наведення, прихована вкладка
+  // слайди гортаються завжди, навіть коли курсор на фото;
+  // пауза лише коли вкладка браузера прихована (щоб не «наздоганяти» слайди після повернення)
   useEffect(() => {
-    const hero = heroRef.current
-    if (!hero) return
-    const enter = () => { if (matchMedia('(hover:hover)').matches) setPaused(true) }
-    const leave = () => setPaused(false)
     const vis = () => setPaused(document.hidden)
-    hero.addEventListener('mouseenter', enter)
-    hero.addEventListener('mouseleave', leave)
     document.addEventListener('visibilitychange', vis)
-    return () => {
-      hero.removeEventListener('mouseenter', enter)
-      hero.removeEventListener('mouseleave', leave)
-      document.removeEventListener('visibilitychange', vis)
-    }
-  }, [heroRef])
+    return () => document.removeEventListener('visibilitychange', vis)
+  }, [])
 
   // стрілки клавіатури та свайп
   useEffect(() => {
