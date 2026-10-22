@@ -22,8 +22,17 @@ function Item({ a, i, open, onToggle }) {
         <div>
           <div className="acc-in">
             <div>
+              {a.lead && <p className="acc-lead">{a.lead}</p>}
+              {a.steps && (
+                <ol className="acc-steps">
+                  {a.steps.map(([t, d]) => <li key={t}><b>{t}</b><span>{d}</span></li>)}
+                </ol>
+              )}
               {a.text.map(p => <p key={p}>{p}</p>)}
-              <button type="button" className="btn btn-red acc-order" tabIndex={open ? 0 : -1} onClick={() => orderAd(a.id)}>Замовити →</button>
+              <div className="acc-actions">
+                <button type="button" className="btn btn-red acc-order" tabIndex={open ? 0 : -1} onClick={() => orderAd(a.id)}>{a.id === 'gift' ? 'Стати партнером →' : 'Замовити →'}</button>
+                {a.demo && <a className="btn acc-demo" href="#rozygrash" tabIndex={open ? 0 : -1}>Подивитися, як це виглядає</a>}
+              </div>
             </div>
             <div className="chips">{a.chips.map(c => <span key={c}>{c}</span>)}</div>
           </div>

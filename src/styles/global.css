@@ -590,3 +590,25 @@ body.photo .freqs,body.photo .latin,body.photo .now strong{text-shadow:0 2px 24p
 }
 @media (prefers-reduced-motion:reduce){.ld-fab,.ld-fab-ic{animation:none}}
 .ld-prize b{font-size:26px;text-wrap:balance}
+
+/* партнер розіграшу */
+.ld-sponsor{display:flex;gap:16px;align-items:flex-start;padding:18px;border-radius:20px;background:var(--bg);border:1px solid var(--line)}
+.ld-sponsor img{width:64px;height:64px;border-radius:16px;object-fit:cover;flex-shrink:0;box-shadow:0 0 0 1px var(--line-2)}
+.ld-sponsor .ld-kicker{margin-bottom:4px}
+.ld-sponsor b{display:block;font-family:var(--display);font-size:28px;letter-spacing:.03em;text-transform:uppercase;line-height:1}
+.ld-sp-tag{display:block;margin-top:4px;font-size:13px;font-weight:700;color:var(--text)}
+.ld-sponsor p{margin:8px 0 0;font-size:13px;line-height:1.5;color:var(--muted)}
+.ld-sponsor a{display:inline-block;margin-top:8px;font-size:13px;font-weight:800;color:var(--text);border-bottom:1px solid var(--red)}
+.ld-modal-sponsor{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
+.ld-modal-sponsor img{width:32px;height:32px;border-radius:8px}
+.ld-modal-sponsor b{color:var(--text)}
+/* пакет «Подарунок для слухачів» */
+.acc-lead{color:var(--text);font-weight:700}
+.acc-steps{list-style:none;counter-reset:st;margin:14px 0 16px;padding:0;display:flex;flex-direction:column;gap:12px}
+.acc-steps li{counter-increment:st;display:grid;grid-template-columns:34px 1fr;column-gap:12px;font-size:15px;line-height:1.5}
+.acc-steps li::before{content:counter(st);grid-row:span 2;width:34px;height:34px;border-radius:50%;background:rgba(190,9,8,.18);color:var(--red);display:grid;place-items:center;font-family:var(--display);font-size:18px}
+.acc-steps b{color:var(--text)}
+.acc-steps span{color:#C9C9C9}
+.acc-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.acc-actions .acc-order{margin-top:0}
+.acc-demo{padding:14px 24px;cursor:pointer}

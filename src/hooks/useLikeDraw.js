@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import udoxLogo from '../assets/partners/partner-2.webp'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // «Лайкай ефір — вигравай»: ПРОТОТИП.
@@ -16,7 +17,8 @@ const env = import.meta.env
 // Налаштування акції. Зараз увімкнено за замовчуванням.
 // Надалі адмін-панель вмикатиме акцію на свята, вихідні чи під спонсора:
 // сайт читає JSON з VITE_PROMO_CONFIG_URL (напр. {API_URL}/promo) і накладає його поверх цих значень,
-// наприклад: { "enabled": true, "occasion": "Святковий розіграш", "prize": { "title": "...", "from": "від кав'ярні «Зерно»" } }
+// наприклад: { "enabled": true, "occasion": "Святковий розіграш", "prize": { "title": "...", "from": "від кав'ярні «Зерно»" },
+//             "sponsor": { "name": "Зерно", "logo": "https://…/logo.png", "tagline": "…", "pitch": "…", "url": "https://…" } }
 export const LIKE_CONFIG = {
   enabled: env.VITE_PROMO_ENABLED !== 'false', // вимкнути: VITE_PROMO_ENABLED=false
   demoData: true, // поки немає бекенду: лічильники й учасники змодельовані, показується позначка «ДЕМО»
@@ -24,7 +26,15 @@ export const LIKE_CONFIG = {
   cooldownMin: 15, // один лайк раз на 15 хвилин = один «квиток» у розіграш
   maxTicketsPerDay: 20, // стеля, щоб шанси були чесними
   drawHour: 20, // розіграш о 20:00 в ефірі «Вечірній драйв»
-  prize: { title: 'Сертифікат на 500 ₴', from: 'від партнера ефіру', note: 'Переможця оголошуємо в прямому ефірі та в Instagram' },
+  prize: { title: 'Сертифікат на 500 ₴', from: 'від UDOX', note: 'Переможця оголошуємо в прямому ефірі та в Instagram' },
+  // партнер, який дарує приз (з адмінки можна передати іншого: name, logo, tagline, pitch, url)
+  sponsor: {
+    name: 'UDOX',
+    logo: udoxLogo,
+    tagline: 'IT-компанія · сайти та цифровізація бізнесу',
+    pitch: 'Створюємо сайти, які приводять клієнтів, і автоматизуємо рутину: CRM, Telegram-боти, рішення зі штучним інтелектом.',
+    url: '' // посилання на сайт партнера
+  },
   yesterdayWinner: 'Марія К.'
 }
 
@@ -66,7 +76,7 @@ export function usePromoConfig() {
     let alive = true
     fetch(url).then(r => (r.ok ? r.json() : null)).then(remote => {
       if (alive && remote && typeof remote === 'object') {
-        setCfg(c => ({ ...c, ...remote, prize: { ...c.prize, ...(remote.prize || {}) } }))
+        setCfg(c => ({ ...c, ...remote, prize: { ...c.prize, ...(remote.prize || {}) }, sponsor: remote.sponsor === null ? null : { ...c.sponsor, ...(remote.sponsor || {}) } }))
       }
     }).catch(() => {})
     return () => { alive = false }

@@ -16,7 +16,7 @@ function GiftIcon() {
 }
 
 // Модальне вікно розіграшу: «барабан» з іменами, потім переможець
-function DrawModal({ winner, onClose, prize = LIKE_CONFIG.prize }) {
+function DrawModal({ winner, onClose, prize = LIKE_CONFIG.prize, sponsor = LIKE_CONFIG.sponsor }) {
   const [shown, setShown] = useState(winner.names[0])
   const [done, setDone] = useState(false)
   useEffect(() => {
@@ -48,6 +48,7 @@ function DrawModal({ winner, onClose, prize = LIKE_CONFIG.prize }) {
             <div className="ld-confetti" aria-hidden="true">{Array.from({ length: 28 }, (_, i) => <i key={i} style={{ '--x': (i * 37) % 100 + '%', '--d': (i % 7) * 0.12 + 's', '--r': (i * 53) % 360 + 'deg' }} />)}</div>
           </>
         )}
+        {sponsor && <div className="ld-modal-sponsor">{sponsor.logo && <img src={sponsor.logo} alt="" width="32" height="32" />}<span>Приз дарує <b>{sponsor.name}</b></span></div>}
         <button type="button" className="btn" onClick={onClose}>{done ? 'Закрити' : 'Пропустити'}</button>
       </div>
     </div>
@@ -153,7 +154,7 @@ function LikeDrawInner({ cfg }) {
       </button>
       {hint && !open && (
         <div className="ld-hint" role="status">
-          <b>🎁 {cfg.occasion}!</b> Лайкайте ефір і вигравайте {cfg.prize.title.toLowerCase()}
+          <b>🎁 {cfg.occasion}!</b> Лайкайте ефір і вигравайте {cfg.prize.title.toLowerCase()}{cfg.sponsor ? ' від ' + cfg.sponsor.name : ''}
           <button type="button" aria-label="Закрити підказку" onClick={() => setHint(false)}>×</button>
         </div>
       )}
@@ -222,6 +223,18 @@ function LikeDrawInner({ cfg }) {
                     <span>{cfg.prize.from}</span>
                   </div>
                 </div>
+                {cfg.sponsor && (
+                  <div className="ld-sponsor">
+                    {cfg.sponsor.logo && <img src={cfg.sponsor.logo} alt={cfg.sponsor.name} width="64" height="64" loading="lazy" />}
+                    <div>
+                      <small className="ld-kicker">ПАРТНЕР РОЗІГРАШУ</small>
+                      <b>{cfg.sponsor.name}</b>
+                      <span className="ld-sp-tag">{cfg.sponsor.tagline}</span>
+                      <p>{cfg.sponsor.pitch}</p>
+                      {cfg.sponsor.url && <a href={cfg.sponsor.url} target="_blank" rel="noopener noreferrer">Дізнатися більше →</a>}
+                    </div>
+                  </div>
+                )}
                 <div className="ld-count">
                   <small>Розіграш о {cfg.drawHour}:00 через</small>
                   <b>{hms(d.drawInMs)}</b>
@@ -250,7 +263,7 @@ function LikeDrawInner({ cfg }) {
           </div>
         </div>
       )}
-      {d.winner && <DrawModal winner={d.winner} onClose={d.closeWinner} prize={cfg.prize} />}
+      {d.winner && <DrawModal winner={d.winner} onClose={d.closeWinner} prize={cfg.prize} sponsor={cfg.sponsor} />}
     </>
   )
 }
