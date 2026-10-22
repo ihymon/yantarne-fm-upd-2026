@@ -1,0 +1,14 @@
+/* Фірмовий шрифт Yantarne.FM — Bebas Neue Cyrillic.
+   Покладіть файли шрифту в цю папку з такими назвами:
+     BebasNeueCyrillic.woff2  (бажано)
+     BebasNeueCyrillic.ttf    (або .ttf)
+   Поки файлів немає, сайт використовує схожий шрифт Oswald. */
+@font-face {
+  font-family: "Bebas Neue Cyrillic";
+  src: local("Bebas Neue Cyrillic"), local("BebasNeueCyrillic"), local("BebasNeueCyrillic-Regular"),
+       url("BebasNeueCyrillic.woff2") format("woff2"),
+       url("BebasNeueCyrillic.ttf") format("truetype");
+  font-weight: 100 900; /* одне накреслення для всіх товщин — без штучного «жирного» */
+  font-style: normal;
+  font-display: swap;
+}
