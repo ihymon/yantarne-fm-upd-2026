@@ -7,6 +7,8 @@ import Hero from './components/Hero'
 import Ticker from './components/Ticker'
 import Timetable from './components/Timetable'
 import LikeDraw from './components/LikeDraw'
+import Jukebox from './components/Jukebox'
+import { JukeboxProvider } from './context/JukeboxContext'
 import TopSongs from './components/TopSongs'
 import About from './components/About'
 import Team from './components/Team'
@@ -35,6 +37,7 @@ export default function App() {
   return (
     <ClockProvider>
       <PlayerProvider>
+      <JukeboxProvider>
         <ScrollProgress />
         <DesktopFx />
         <Header view={view} onView={changeView} />
@@ -53,6 +56,8 @@ export default function App() {
         <Footer />
         <MiniPlayer />
         <LikeDraw />
+        <Jukebox />
+      </JukeboxProvider>
       </PlayerProvider>
     </ClockProvider>
   )

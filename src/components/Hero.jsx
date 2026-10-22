@@ -5,6 +5,8 @@ import { usePlayer } from '../context/PlayerContext'
 import PlayButton from './PlayButton'
 import HeroSlider from './HeroSlider'
 import { HeroEq } from './Equalizer'
+import JukeboxBubbles from './JukeboxBubbles'
+import { JukeboxLauncher } from './Jukebox'
 
 const TITLE = 'Yantarne.fm'
 
@@ -27,6 +29,8 @@ export default function Hero({ view }) {
     <div className="hero" id="top" ref={heroRef} onMouseMove={onMove}>
       <HeroSlider active={view === 'photo'} heroRef={heroRef} />
       <div className="blob a"></div><div className="blob b"></div><div className="spot"></div>
+      <HeroEq />
+      <JukeboxBubbles />
       <div className="kicker">{STATION.city.toUpperCase()} · З {STATION.since} РОКУ</div>
       <h1 className="title" lang="en" aria-label={TITLE}>
         {TITLE.split('').map((c, i) => <span key={i} className="ch" aria-hidden="true" style={{ animationDelay: i * 0.07 + 's' }}>{c}</span>)}
@@ -49,7 +53,7 @@ export default function Hero({ view }) {
             : <span>{hint}{listeners != null && status === 'playing' && <span className="listeners">· {listeners} слухачів</span>}</span>}
         </div>
       </div>
-      <HeroEq />
+      <JukeboxLauncher />
     </div>
   )
 }
