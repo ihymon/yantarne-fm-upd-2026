@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { useJukebox } from '../context/JukeboxContext'
+import { useJukebox, fmtLeft, daysWord, MIN_PRICE } from '../context/JukeboxContext'
 
 const hhmm = t => { const d = new Date(t); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') }
 export const initials = name => name.split(/\s+/).filter(w => /^[\p{L}]/u.test(w)).slice(0, 2).map(w => w[0]).join('').toUpperCase()
 
-// Логотипи компаній і імена слухачів, які замовили пісню, «підстрибують» на головному екрані.
+// Логотипи компаній, які замовили пісню в ефір, «підстрибують» на головному екрані.
 // Фізика проста: гравітація + відскок від «підлоги» і стін; коли м'ячик затихає — новий поштовх угору.
 export default function JukeboxBubbles() {
   const { queue, setOpen, focusId } = useJukebox()
@@ -13,6 +13,8 @@ export default function JukeboxBubbles() {
   const bodies = useRef({})
   const hovered = useRef(null)
   const [tip, setTip] = useState(null)
+  const [, setTick] = useState(0)
+  useEffect(() => { const id = setInterval(() => setTick(t => t + 1), 30000); return () => clearInterval(id) }, [])
   const now = Date.now()
   const currentId = [...queue].filter(o => o.time <= now).pop()?.id
   const items = queue.slice(0, 9)
@@ -80,19 +82,29 @@ export default function JukeboxBubbles() {
           onFocus={e => show(o, e.currentTarget)}
           onBlur={hide}
           onClick={() => setOpen(true)}
-          aria-label={`${o.name}: «${o.song.title}» о ${hhmm(o.time)}`}
+          aria-label={`Партнер ${o.name}: пісня о ${hhmm(o.time)}, логотип на сайті ще ${fmtLeft(o.until - now)}`}
         >
-          {o.kind === 'company' && o.logo
-            ? <img src={o.logo} alt="" draggable="false" />
-            : <><i>{initials(o.name)}</i><span>{o.name}</span></>}
-          {o.id === currentId && <em aria-hidden="true">♪</em>}
+          <span className="jb-logo">
+            {o.logo ? <img src={o.logo} alt="" draggable="false" /> : <i>{initials(o.name)}</i>}
+            <svg className="jb-ring" viewBox="0 0 100 100" aria-hidden="true">
+              <circle cx="50" cy="50" r="47" />
+              <circle cx="50" cy="50" r="47" className="p" style={{ strokeDashoffset: 295.3 * (1 - Math.max(0, Math.min(1, (o.until - now) / (o.days * 864e5)))) }} />
+            </svg>
+            {o.id === currentId && <em aria-hidden="true">♪</em>}
+          </span>
+          <span className="jb-tag">ПАРТНЕР · {fmtLeft(o.until - now, true)}</span>
         </button>
       ))}
       {tip && (
-        <div className="jb-tip" style={{ left: tip.x, top: Math.max(8, tip.y - 118) }} role="tooltip">
-          <small>{tip.o.id === currentId ? '● ЗАРАЗ ГРАЄ' : 'О ' + hhmm(tip.o.time)}</small>
-          <b>{tip.o.song.artist} — {tip.o.song.title}</b>
-          <span>Замовлення від <strong>{tip.o.name}</strong>{tip.o.note ? ` · «${tip.o.note}»` : ''}</span>
+        <div className="jb-tip" style={{ left: tip.x, top: Math.max(8, tip.y - 190) }} role="tooltip">
+          <small>ПАРТНЕР ЕФІРУ · {tip.o.id === currentId ? '● ПІСНЯ ЗАРАЗ ГРАЄ' : 'ПІСНЯ О ' + hhmm(tip.o.time)}</small>
+          <b>{tip.o.name}</b>
+          {tip.o.note && <span>«{tip.o.note}»</span>}
+          <div className="jb-tip-meta">
+            <div><i>На сайті ще</i><strong>{fmtLeft(tip.o.until - Date.now())}</strong></div>
+            <div><i>Розміщення</i><strong>{daysWord(tip.o.days)}</strong></div>
+          </div>
+          <em>Хочете тут свій логотип? Від {MIN_PRICE} ₴: натисніть на логотип</em>
         </div>
       )}
     </div>

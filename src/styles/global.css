@@ -733,3 +733,51 @@ body.photo .jb-launch{background:rgba(11,11,11,.55)}
 /* текст hero пропускає наведення до «стрибунців» під ним; клікабельні лише кнопки */
 .hero>.kicker,.hero>.title,.hero>.freqs,.hero>.player,.hero>.eq{pointer-events:none}
 .hero>.player .play{pointer-events:auto}
+.jb-lead{margin:14px 0 0;color:#C9C9C9;font-size:16px;line-height:1.6;max-width:560px}
+.jb-main .sec-title{line-height:1.02}
+
+/* ===== автомат: логотип-партнер, термін, прорахунок ===== */
+.jb-bubble.company,.jb-bubble.company.now{width:auto;height:auto;border-radius:0;overflow:visible;background:none;box-shadow:none;display:flex;flex-direction:column;align-items:center;gap:6px}
+.jb-logo{position:relative;width:76px;height:76px;display:block}
+.jb-logo img,.jb-logo>i{width:100%;height:100%;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.5);font-style:normal;font-weight:800;color:var(--bg);font-size:18px}
+.jb-ring{position:absolute;inset:-7px;width:calc(100% + 14px);height:calc(100% + 14px);transform:rotate(-90deg);pointer-events:none}
+.jb-ring circle{fill:none;stroke:rgba(255,255,255,.18);stroke-width:4}
+.jb-ring .p{stroke:var(--red);stroke-dasharray:295.3;stroke-linecap:round;transition:stroke-dashoffset 1s}
+.jb-bubble.now .jb-logo{width:92px;height:92px}
+.jb-bubble.now .jb-logo img{box-shadow:0 0 0 3px var(--red),0 0 0 10px rgba(190,9,8,.22),0 14px 40px rgba(190,9,8,.45)}
+.jb-bubble.company em{right:-6px;top:-6px;z-index:1}
+.jb-tag{padding:4px 9px;border-radius:999px;background:rgba(11,11,11,.88);border:1px solid var(--line-2);font-size:10px;font-weight:800;letter-spacing:.12em;color:var(--text);white-space:nowrap;box-shadow:0 6px 16px rgba(0,0,0,.4)}
+.jb-bubble.now .jb-tag{background:var(--red);border-color:var(--red)}
+.jb-bubble.static{position:static;transform:none;pointer-events:none}
+.jb-tip{width:300px}
+.jb-tip span{display:block;margin-bottom:8px}
+.jb-tip-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0;border-top:1px solid #ddd;border-bottom:1px solid #ddd}
+.jb-tip-meta i{display:block;font-style:normal;font-size:11px;color:#666}
+.jb-tip-meta strong{font-size:14px}
+.jb-tip em{display:block;margin-top:8px;font-style:normal;font-size:12px;font-weight:700;color:var(--red)}
+.jb-plans{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.jb-plans button{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:14px;border-radius:16px;border:1px solid var(--line-2);background:var(--bg);color:var(--text);font:inherit;cursor:pointer;text-align:left}
+.jb-plans button:hover{border-color:var(--red)}
+.jb-plans button.on{border-color:var(--red);background:#2A0807}
+.jb-plans b{font-family:var(--display);font-size:22px;font-weight:400;text-transform:uppercase;letter-spacing:.03em}
+.jb-plans span{font-size:13px;color:var(--muted);font-weight:700}
+.jb-plans em{position:absolute;top:-8px;right:8px;padding:2px 7px;border-radius:999px;background:var(--red);font-style:normal;font-size:11px;font-weight:800}
+.jb-sub2{margin-top:-4px}
+.jb-calc{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;margin-top:6px;padding:18px;border-radius:20px;background:var(--bg);border:1px solid var(--line)}
+.jb-calc.compact{grid-template-columns:1fr;width:100%;max-width:420px;padding:14px 16px;text-align:left}
+.jb-preview{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:150px;text-align:center}
+.jb-preview small{font-size:11px;color:var(--dim);line-height:1.4}
+.jb-calc ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.jb-calc li{display:flex;justify-content:space-between;gap:12px;font-size:14px;color:#C9C9C9}
+.jb-calc li b{color:var(--text);white-space:nowrap}
+.jb-calc li.disc b{color:#5CC98A}
+.jb-calc li.sum{margin-top:6px;padding-top:10px;border-top:1px solid var(--line-2);align-items:baseline}
+.jb-calc li.sum span{font-weight:800;color:var(--text)}
+.jb-calc li.sum b{font-family:var(--display);font-size:30px;color:var(--red);letter-spacing:.03em}
+.jb-until{grid-column:1/-1;font-size:12px;color:var(--dim)}
+@media (max-width:640px){
+  .jb-plans{grid-template-columns:1fr 1fr}
+  .jb-calc{grid-template-columns:1fr}.jb-preview{max-width:none}
+  .jb-logo{width:58px;height:58px}.jb-bubble.now .jb-logo{width:68px;height:68px}
+  .jb-tag{font-size:9px;padding:3px 7px}
+}
