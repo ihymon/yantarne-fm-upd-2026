@@ -8,7 +8,7 @@ import Ticker from './components/Ticker'
 import Timetable from './components/Timetable'
 import LikeDraw from './components/LikeDraw'
 import Jukebox from './components/Jukebox'
-import { JukeboxProvider } from './context/JukeboxContext'
+import { JukeboxProvider, JUKEBOX } from './context/JukeboxContext'
 import TopSongs from './components/TopSongs'
 import About from './components/About'
 import Team from './components/Team'
@@ -56,7 +56,7 @@ export default function App() {
         <Footer />
         <MiniPlayer />
         <LikeDraw />
-        <Jukebox />
+        {JUKEBOX.enabled && <Jukebox />}
       </JukeboxProvider>
       </PlayerProvider>
     </ClockProvider>
