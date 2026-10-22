@@ -7,7 +7,7 @@ import { HeartIcon, PlayIcon, PauseIcon } from './Icons'
 
 const fmtTime = s => (Number.isFinite(s) ? Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0') : '0:00')
 
-function Song({ s, i, liked, onLike, active, playing, progress, duration, onToggle, onSeek }) {
+function Song({ s, i, liked, onLike, active, playing, progress, duration, onToggle, onSeek, broken }) {
   const reveal = useReveal()
   const [pop, setPop] = useState(false)
   const [imgOk, setImgOk] = useState(true)
@@ -30,7 +30,8 @@ function Song({ s, i, liked, onLike, active, playing, progress, duration, onTogg
       <div className="meta">
         <b>{s.title}</b>
         <span>{s.artist}</span>
-        {active && (
+        {active && broken && <small className="track-err">Трек тимчасово недоступний</small>}
+        {active && !broken && (
           <div className="track-bar">
             <div className="bar" role="slider" tabIndex={0} aria-label="Позиція треку" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress * 100)}
               onClick={seek}
@@ -63,6 +64,7 @@ export default function TopSongs() {
   const [playing, setPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const [duration, setDuration] = useState(0)
+  const [broken, setBroken] = useState({}) // треки, які не вдалося завантажити
 
   // один <audio> для прослуховування треків
   useEffect(() => {
@@ -73,6 +75,8 @@ export default function TopSongs() {
     const on = () => setPlaying(true)
     const off = () => setPlaying(false)
     const end = () => { setPlaying(false); setProgress(0) }
+    const fail = () => { if (a.getAttribute('src')) { setPlaying(false); setBroken(b => ({ ...b, [a.getAttribute('src')]: true })) } }
+    a.addEventListener('error', fail)
     a.addEventListener('timeupdate', time)
     a.addEventListener('loadedmetadata', meta)
     a.addEventListener('playing', on)
@@ -100,7 +104,7 @@ export default function TopSongs() {
     stopLive() // щоб звук ефіру не накладався
     a.src = songs[i].audio
     setCur(i); setProgress(0); setDuration(0)
-    a.play().catch(() => setPlaying(false))
+    a.play().catch(err => { setPlaying(false); if (err?.name === 'NotSupportedError') setBroken(b => ({ ...b, [songs[i].audio]: true })) })
   }
 
   const seek = f => {
@@ -131,6 +135,7 @@ export default function TopSongs() {
                 duration={cur === i ? duration : 0}
                 onToggle={() => toggle(i)}
                 onSeek={seek}
+                broken={!!broken[s.audio]}
               />
             )
           })}
