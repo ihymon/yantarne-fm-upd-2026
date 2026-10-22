@@ -51,14 +51,15 @@ export const ABOUT_CARDS = [
   { icon: music, title: 'Якісна українська музика' }
 ]
 
-// ТОП пісень. move: '▲ 2', '▼ 1', 'NEW' або '—'.
-// TODO: замініть заглушки на реальний хіт-парад тижня.
+// ТОП пісень. Актуальний список сайт бере з адмінки радіо (API, див. src/hooks/useTopSongs.js),
+// а цей список показується, поки API «прокидається» або якщо воно недоступне.
+const CDN = 'https://res.cloudinary.com/yuwmfinr/video/upload'
 export const TOP_SONGS = [
-  { title: '[Назва треку 1]', artist: '[Виконавець]', move: '▲ 2' },
-  { title: '[Назва треку 2]', artist: '[Виконавець]', move: '▼ 1' },
-  { title: '[Назва треку 3]', artist: '[Виконавець]', move: 'NEW' },
-  { title: '[Назва треку 4]', artist: '[Виконавець]', move: '▲ 3' },
-  { title: '[Назва треку 5]', artist: '[Виконавець]', move: '—' }
+  { artist: 'Alena Omargalieva', title: 'Фанат', image: 'https://i1.sndcdn.com/artworks-LyRiL1lB839pLeAu-PD03aQ-t1080x1080.jpg', audio: CDN + '/v1788163201/1.mp3' },
+  { artist: 'DREVO', title: 'Енкарапіста', image: 'https://images.genius.com/73441c7e8af83ccc98e99d343e92a630.1000x1000x1.png', audio: CDN + '/v1788163196/2.mp3' },
+  { artist: 'Кажанна', title: 'Сльозка', image: 'https://images.genius.com/44f24c7b92bbde2c2607a0cbc024cbc9.1000x1000x1.png', audio: CDN + '/v1788163200/3.mp3' },
+  { artist: 'Jerry Heil & YARMAK', title: 'З якого ти поверху неба?', image: 'https://music.od.ua/i/covers/141764701343.webp', audio: CDN + '/v1788163190/4.mp3' },
+  { artist: 'DOROFEEVA', title: 'Японія', image: '', audio: CDN + '/v1788163188/5.mp3' }
 ]
 
 export const ADS = [

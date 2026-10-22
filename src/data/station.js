@@ -5,6 +5,8 @@ export const STREAM_URL = env.VITE_STREAM_URL || 'https://complex.in.ua/yantarne
 export const STREAM_FALLBACK_URL = env.VITE_STREAM_FALLBACK_URL || 'http://complex.in.ua/yantarne'
 export const STREAM_STATUS_URL = env.VITE_STREAM_STATUS_URL || 'https://complex.in.ua/status-json.xsl?mount=/yantarne'
 export const FORM_ENDPOINT = env.VITE_FORM_ENDPOINT || ''
+// API адмінки радіо (той самий бекенд, що й у поточного сайту yantarne.fm)
+export const API_URL = (env.VITE_API_URL || 'https://yantarnefm-server-4j82.onrender.com/api').replace(/\/$/, '')
 export const YOUTUBE_VIDEO_ID = env.VITE_YOUTUBE_VIDEO_ID || ''
 
 export const STATION = {
