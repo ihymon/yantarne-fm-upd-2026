@@ -13,8 +13,8 @@ import udoxLogo from '../assets/demo/logo-udox.webp'
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const JUKEBOX = {
-  // ВИМКНЕНО (збережено на майбутнє). Увімкнути: true тут або VITE_PARTNER_LOGOS=true у .env
-  enabled: import.meta.env.VITE_PARTNER_LOGOS === 'true',
+  // УВІМКНЕНО. Вимкнути: VITE_PARTNER_LOGOS=false у .env (або false тут)
+  enabled: import.meta.env.VITE_PARTNER_LOGOS !== 'false',
   demo: true,
   // ціни для прикладу
   prices: { perDay: 40 }, // логотип на головній: ціна за добу
