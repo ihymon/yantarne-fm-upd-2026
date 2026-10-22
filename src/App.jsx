@@ -6,6 +6,7 @@ import Header from './components/Header'
 import Hero from './components/Hero'
 import Ticker from './components/Ticker'
 import Timetable from './components/Timetable'
+import LikeDraw from './components/LikeDraw'
 import TopSongs from './components/TopSongs'
 import About from './components/About'
 import Team from './components/Team'
@@ -51,6 +52,7 @@ export default function App() {
         </main>
         <Footer />
         <MiniPlayer />
+        <LikeDraw />
       </PlayerProvider>
     </ClockProvider>
   )
