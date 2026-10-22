@@ -1,23 +1,24 @@
 import { useEffect, useRef, useState } from 'react'
 import { useJukebox, fmtLeft, daysWord, MIN_PRICE } from '../context/JukeboxContext'
 
-const hhmm = t => { const d = new Date(t); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') }
 export const initials = name => name.split(/\s+/).filter(w => /^[\p{L}]/u.test(w)).slice(0, 2).map(w => w[0]).join('').toUpperCase()
+const left01 = (p, now) => Math.max(0, Math.min(1, (p.until - now) / (p.days * 864e5)))
 
-// Логотипи компаній, які замовили пісню в ефір, «підстрибують» на головному екрані.
-// Фізика проста: гравітація + відскок від «підлоги» і стін; коли м'ячик затихає — новий поштовх угору.
+// Логотипи партнерів «підстрибують» на головному екрані.
+// Під час завантаження сторінки вони падають згори; ті, що додаються потім, з'являються одразу на «підлозі»
+// і просто підстрибують. Фізика: гравітація + відскок від підлоги і стін; затихло — новий поштовх угору.
 export default function JukeboxBubbles() {
-  const { queue, setOpen, focusId } = useJukebox()
+  const { partners, setOpen, focusId } = useJukebox()
   const layer = useRef(null)
   const els = useRef({})
   const bodies = useRef({})
   const hovered = useRef(null)
+  const mountedAt = useRef(performance.now())
   const [tip, setTip] = useState(null)
   const [, setTick] = useState(0)
   useEffect(() => { const id = setInterval(() => setTick(t => t + 1), 30000); return () => clearInterval(id) }, [])
   const now = Date.now()
-  const currentId = [...queue].filter(o => o.time <= now).pop()?.id
-  const items = queue.slice(0, 9)
+  const items = partners.filter(p => p.until > now).slice(0, 10)
 
   useEffect(() => {
     const box = layer.current
@@ -35,8 +36,12 @@ export default function JukeboxBubbles() {
         const w = el.offsetWidth, h = el.offsetHeight
         let b = bodies.current[id]
         if (!b) {
-          // нове замовлення «падає» згори в випадковому місці
-          b = bodies.current[id] = { x: 20 + Math.random() * Math.max(10, W - w - 40), y: -h - Math.random() * 200, vx: (Math.random() < 0.5 ? -1 : 1) * (25 + Math.random() * 35), vy: 0, r: 0 }
+          const x = 20 + Math.random() * Math.max(10, W - w - 40)
+          const vx = (Math.random() < 0.5 ? -1 : 1) * (25 + Math.random() * 35)
+          const onLoad = t - mountedAt.current < 1500
+          b = bodies.current[id] = onLoad
+            ? { x, y: -h - Math.random() * 200, vx, vy: 0, r: 0 } // при завантаженні — падає згори
+            : { x, y: floor - h, vx, vy: -(320 + Math.random() * 140), r: 0 } // доданий пізніше — одразу підстрибує з підлоги
         }
         if (!reduce && hovered.current !== id) {
           b.vy += 520 * dt
@@ -45,14 +50,13 @@ export default function JukeboxBubbles() {
           if (b.y + h > floor) {
             b.y = floor - h
             b.vy = -Math.abs(b.vy) * 0.72
-            // затухло — підстрибуємо знову (поточна пісня стрибає вище)
-            if (Math.abs(b.vy) < 160) b.vy = -(270 + Math.random() * 190) * (id === currentId ? 1.2 : 1)
+            if (Math.abs(b.vy) < 160) b.vy = -(270 + Math.random() * 190)
           }
           if (b.x < 8) { b.x = 8; b.vx = Math.abs(b.vx) }
           if (b.x + w > W - 8) { b.x = W - 8 - w; b.vx = -Math.abs(b.vx) }
-          b.r = Math.max(-14, Math.min(14, b.vx * 0.12 + b.vy * 0.01))
+          b.r = Math.max(-12, Math.min(12, b.vx * 0.1 + b.vy * 0.01))
         } else if (reduce && b.y < 0) {
-          b.y = floor - h - (i % 3) * 70
+          b.y = floor - h - (i % 3) * 80
         }
         el.style.transform = `translate3d(${b.x}px,${b.y}px,0) rotate(${hovered.current === id ? 0 : b.r}deg)`
       })
@@ -60,53 +64,65 @@ export default function JukeboxBubbles() {
     }
     raf = requestAnimationFrame(step)
     return () => cancelAnimationFrame(raf)
-  }, [currentId])
+  }, [])
 
-  const show = (o, el) => {
-    hovered.current = o.id
+  const show = (p, el) => {
+    hovered.current = p.id
     const r = el.getBoundingClientRect(), pr = layer.current.getBoundingClientRect()
-    setTip({ o, x: Math.min(pr.width - 290, Math.max(10, r.left - pr.left + r.width / 2 - 140)), y: r.top - pr.top })
+    setTip({ p, x: Math.min(pr.width - 310, Math.max(10, r.left - pr.left + r.width / 2 - 150)), y: r.top - pr.top })
   }
   const hide = () => { hovered.current = null; setTip(null) }
 
   return (
-    <div className="jb-layer" ref={layer} aria-label="Замовлені пісні">
-      {items.map(o => (
+    <div className="jb-layer" ref={layer} aria-label="Партнери Yantarne.FM">
+      {items.map(p => (
         <button
-          key={o.id}
+          key={p.id}
           type="button"
-          ref={el => { els.current[o.id] = el; if (!el) delete bodies.current[o.id] }}
-          className={'jb-bubble ' + o.kind + (o.id === currentId ? ' now' : '') + (o.id === focusId ? ' fresh' : '')}
-          onMouseEnter={e => show(o, e.currentTarget)}
+          ref={el => { els.current[p.id] = el; if (!el) { delete els.current[p.id]; delete bodies.current[p.id] } }}
+          className={'jb-bubble' + (p.id === focusId ? ' fresh' : '')}
+          onMouseEnter={e => show(p, e.currentTarget)}
           onMouseLeave={hide}
-          onFocus={e => show(o, e.currentTarget)}
+          onFocus={e => show(p, e.currentTarget)}
           onBlur={hide}
           onClick={() => setOpen(true)}
-          aria-label={`Партнер ${o.name}: пісня о ${hhmm(o.time)}, логотип на сайті ще ${fmtLeft(o.until - now)}`}
+          aria-label={`Партнер ${p.name}, логотип на сайті ще ${fmtLeft(p.until - now)}`}
         >
-          <span className="jb-logo">
-            {o.logo ? <img src={o.logo} alt="" draggable="false" /> : <i>{initials(o.name)}</i>}
-            <svg className="jb-ring" viewBox="0 0 100 100" aria-hidden="true">
-              <circle cx="50" cy="50" r="47" />
-              <circle cx="50" cy="50" r="47" className="p" style={{ strokeDashoffset: 295.3 * (1 - Math.max(0, Math.min(1, (o.until - now) / (o.days * 864e5)))) }} />
-            </svg>
-            {o.id === currentId && <em aria-hidden="true">♪</em>}
-          </span>
-          <span className="jb-tag">ПАРТНЕР · {fmtLeft(o.until - now, true)}</span>
+          <PartnerLogo p={p} />
+          <PartnerTag left={fmtLeft(p.until - now, true)} frac={left01(p, now)} />
         </button>
       ))}
       {tip && (
-        <div className="jb-tip" style={{ left: tip.x, top: Math.max(8, tip.y - 190) }} role="tooltip">
-          <small>ПАРТНЕР ЕФІРУ · {tip.o.id === currentId ? '● ПІСНЯ ЗАРАЗ ГРАЄ' : 'ПІСНЯ О ' + hhmm(tip.o.time)}</small>
-          <b>{tip.o.name}</b>
-          {tip.o.note && <span>«{tip.o.note}»</span>}
+        <div className="jb-tip" style={{ left: tip.x, top: Math.max(8, tip.y - 196) }} role="tooltip">
+          <small>ПАРТНЕР YANTARNE.FM</small>
+          <b>{tip.p.name}</b>
+          {tip.p.note && <span>«{tip.p.note}»</span>}
           <div className="jb-tip-meta">
-            <div><i>На сайті ще</i><strong>{fmtLeft(tip.o.until - Date.now())}</strong></div>
-            <div><i>Розміщення</i><strong>{daysWord(tip.o.days)}</strong></div>
+            <div><i>На сайті ще</i><strong>{fmtLeft(tip.p.until - Date.now())}</strong></div>
+            <div><i>Розміщення</i><strong>{daysWord(tip.p.days)}</strong></div>
           </div>
-          <em>Хочете тут свій логотип? Від {MIN_PRICE} ₴: натисніть на логотип</em>
+          <em>Хочете тут свій логотип? Від {MIN_PRICE} ₴ на день: натисніть на логотип</em>
         </div>
       )}
     </div>
+  )
+}
+
+// Логотип у власних пропорціях (прямокутний лишається прямокутним)
+export function PartnerLogo({ p }) {
+  return (
+    <span className="jb-logo">
+      {p.logo ? <img src={p.logo} alt="" draggable="false" /> : <i>{initials(p.name || 'Лого')}</i>}
+    </span>
+  )
+}
+
+// Мітка «Партнер» + скільки лишилося, зі смужкою залишку терміну
+export function PartnerTag({ left, frac }) {
+  return (
+    <span className="jb-tag">
+      ПАРТНЕР · {left}
+      <i aria-hidden="true"><b style={{ width: frac * 100 + '%' }} /></i>
+    </span>
   )
 }

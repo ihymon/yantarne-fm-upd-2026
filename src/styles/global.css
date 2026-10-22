@@ -781,3 +781,23 @@ body.photo .jb-launch{background:rgba(11,11,11,.55)}
   .jb-logo{width:58px;height:58px}.jb-bubble.now .jb-logo{width:68px;height:68px}
   .jb-tag{font-size:9px;padding:3px 7px}
 }
+
+/* ===== логотипи партнерів: власні пропорції, мітка зі смужкою ===== */
+.jb-bubble,.jb-bubble.company,.jb-bubble.company.now{width:auto;height:auto;padding:0;border-radius:0;overflow:visible;background:none;box-shadow:none;display:flex;flex-direction:column;align-items:center;gap:6px}
+.jb-logo{position:relative;width:auto;height:auto;display:block}
+.jb-logo img{display:block;width:auto;height:auto;max-height:70px;max-width:170px;border-radius:12px;object-fit:contain;background:none;box-shadow:0 10px 30px rgba(0,0,0,.55)}
+.jb-logo>i{width:70px;height:70px;border-radius:12px;display:grid;place-items:center;background:var(--surface-2);font-style:normal;font-weight:800;color:var(--text);font-size:20px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.jb-tag{position:relative;display:flex;flex-direction:column;gap:4px;padding:4px 9px 5px}
+.jb-tag i{display:block;height:3px;border-radius:2px;background:var(--line-2);overflow:hidden}
+.jb-tag i b{display:block;height:100%;background:var(--red);border-radius:2px}
+.jb-q-logo .jb-logo img{max-height:34px;max-width:72px;border-radius:6px;box-shadow:none}
+.jb-q-logo .jb-logo>i{width:34px;height:34px;font-size:12px;border-radius:6px;box-shadow:none}
+.jb-q-logo{width:72px;display:flex;justify-content:center;flex-shrink:0}
+.jb-plans{grid-template-columns:repeat(5,1fr)}
+.jb-preview .jb-logo img{max-height:64px;max-width:150px}
+.jb-drop img{width:auto;max-width:72px;height:42px;border-radius:8px;object-fit:contain;background:none}
+.jb-who .hint{margin:0;font-size:13px;grid-column:1/-1}
+.jb-done-ic{font-size:30px}
+@media (max-width:900px){.jb-plans{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:640px){.jb-logo img{max-height:52px;max-width:130px}.jb-plans{grid-template-columns:1fr 1fr}}
+.jb-plans b{font-size:20px;white-space:nowrap}
