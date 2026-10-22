@@ -92,7 +92,7 @@ body:not(.paused) .i-play{display:none}body:not(.paused) .i-pause{display:block}
 section{padding:clamp(72px,9vw,120px) 0;scroll-margin-top:60px}
 .sec-title{font-weight:800;font-size:clamp(40px,5vw,72px);line-height:1}
 .reveal{opacity:0;transform:translateY(40px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
-.reveal.in{opacity:1;transform:none}
+.reveal[data-in]{opacity:1;transform:none}
 
 /* timetable */
 .tt-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:44px}
@@ -400,3 +400,39 @@ body.photo .freqs,body.photo .latin,body.photo .now strong{text-shadow:0 2px 24p
 @media (max-width:900px){.mcap b{font-size:19px}}
 .mini .info b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:640px){.title{font-size:15vw}.mini .info b{font-size:17px}}
+
+/* ===== бриф на рекламу ===== */
+.contacts{align-items:start}
+.brief{gap:24px}
+.brief-head{display:flex;flex-direction:column;gap:10px}
+.brief fieldset{border:0;margin:0;padding:0;min-width:0}
+.brief legend,.brief label{font-size:14px;font-weight:700;color:var(--muted)}
+.brief legend{padding:0;margin-bottom:12px}
+.brief legend span{font-weight:500;color:var(--dim);margin-left:6px}
+.brief label i,.brief legend i{font-style:normal;color:var(--red)}
+.pick{display:flex;flex-wrap:wrap;gap:10px;outline:none;border-radius:16px}
+.pick[aria-invalid="true"] .pick-btn{border-color:var(--red)}
+.pick-btn{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 18px 0 14px;border-radius:999px;border:1px solid var(--line-2);background:var(--bg);color:var(--text);font-weight:700;font-size:15px;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.pick-btn:hover{border-color:var(--red)}
+.pick-btn .tick{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line-2);display:grid;place-items:center;transition:background .2s,border-color .2s}
+.pick-btn.on{background:var(--red);border-color:var(--red);color:#fff}
+.pick-btn.on .tick{background:#fff;border-color:#fff}
+.pick-btn.on .tick::after{content:"";width:8px;height:4px;border-left:2px solid var(--red);border-bottom:2px solid var(--red);transform:translateY(-1px) rotate(-45deg)}
+.pick-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.brief-grid .wide{grid-column:1/-1}
+.form select{font:inherit;font-size:17px;color:var(--text);background:var(--bg);border:1px solid var(--line-2);border-radius:16px;padding:16px 44px 16px 18px;appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A6A6A6' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;background-size:18px;transition:border-color .25s,box-shadow .25s}
+.form select:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 4px rgba(190,9,8,.25)}
+.form input:user-invalid{border-color:var(--red)}
+.brief-foot{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.brief-foot .hint{flex:1;min-width:200px;font-size:13px}
+.brief .sent{font-family:"Manrope",system-ui,sans-serif;font-size:16px;text-transform:none;padding:32px;text-align:center}
+.brief .sent>div{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:420px}
+.brief .sent b{font-family:var(--display);font-size:clamp(34px,3.4vw,48px);font-weight:400;text-transform:uppercase;letter-spacing:.02em;color:var(--text)}
+.brief .sent p{margin:0;color:var(--muted);line-height:1.6}
+.brief .sent a{color:var(--text);font-weight:800}
+.brief .sent .btn{margin-top:8px;cursor:pointer;background:transparent;color:var(--text)}
+.brief .sent .btn:hover{background:var(--text);color:var(--bg)}
+.acc-order{margin-top:12px;cursor:pointer;padding:14px 26px}
+@media (max-width:640px){.brief-grid{grid-template-columns:1fr}.pick-btn{height:42px;font-size:14px}}

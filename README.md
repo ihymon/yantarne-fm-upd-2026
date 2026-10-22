@@ -31,7 +31,7 @@ npm run preview   # перегляд готової збірки
 | `VITE_STREAM_URL` | Адреса аудіопотоку Icecast (HTTPS) |
 | `VITE_STREAM_FALLBACK_URL` | Запасна адреса потоку |
 | `VITE_STREAM_STATUS_URL` | `status-json.xsl`: звідси беруться назва треку й кількість слухачів |
-| `VITE_FORM_ENDPOINT` | Куди надсилати форму «Контакти» (POST JSON, напр. Formspree). Якщо порожньо, відкривається поштовий клієнт |
+| `VITE_FORM_ENDPOINT` | Куди надсилати заявки на рекламу (POST JSON, напр. Formspree). Якщо порожньо, відкривається поштова програма з готовим листом |
 | `VITE_YOUTUBE_VIDEO_ID` | ID відео для блоку «Новини». Якщо порожньо, кнопка веде на YouTube-канал |
 
 Якщо змінили домен, оновіть його також у `public/robots.txt` і `public/sitemap.xml`.
@@ -53,6 +53,7 @@ npm run preview   # перегляд готової збірки
 | Партнери (логотипи в `src/assets/partners/`) | `src/data/content.js` → `PARTNERS` |
 | Фото для режиму «Фото» | `src/assets/hero/` + `HERO_SLIDES` |
 | Пакети реклами | `src/data/content.js` → `ADS` |
+| Варіанти в брифі (старт, бюджет, спосіб зв’язку) | `src/data/content.js` → `BRIEF_*` |
 | Стилі | `src/styles/global.css` |
 
 ## Що вміє сайт

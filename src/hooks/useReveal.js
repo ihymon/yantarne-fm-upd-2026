@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 
-// Спільний IntersectionObserver для анімації появи блоків (.reveal → .reveal.in)
+// Спільний IntersectionObserver для анімації появи блоків (.reveal → .reveal[data-in]).
+// Атрибут, а не клас: React перезаписує className під час рендеру і «прибирав» би стан появи.
 let io = null
 function getObserver() {
   if (io || typeof IntersectionObserver === 'undefined') return io
@@ -10,7 +11,7 @@ function getObserver() {
       const el = e.target
       const idx = el.parentNode ? Array.prototype.indexOf.call(el.parentNode.children, el) : 0
       el.style.transitionDelay = Math.min(idx, 5) * 0.08 + 's'
-      el.classList.add('in')
+      el.setAttribute('data-in', '')
       setTimeout(() => { el.style.transitionDelay = '' }, 1400)
       el.dispatchEvent(new CustomEvent('revealed'))
       io.unobserve(el)
@@ -25,6 +26,6 @@ export function useReveal() {
     if (!el) return
     const obs = getObserver()
     if (obs) obs.observe(el)
-    else el.classList.add('in')
+    else el.setAttribute('data-in', '')
   }, [])
 }

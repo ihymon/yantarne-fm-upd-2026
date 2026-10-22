@@ -20,7 +20,7 @@ function Counter({ to, dec = 0, suffix = '' }) {
       }
       requestAnimationFrame(f)
     }
-    if (host.classList.contains('in')) { el.textContent = to.toFixed(dec) + suffix; return }
+    if (host.hasAttribute('data-in')) { el.textContent = to.toFixed(dec) + suffix; return }
     host.addEventListener('revealed', run, { once: true })
     return () => host.removeEventListener('revealed', run)
   }, [to, dec, suffix])
