@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import { API_URL } from '../data/station'
 import { TOP_SONGS } from '../data/content'
 
-// ТОП пісень з адмінки радіо: GET {API_URL}/top-songs → { songs: [{ title, artist, image, audio, index }] }.
-// Одразу показуємо запасний список, а коли API відповість — підміняємо актуальним.
+// ТОП пісень: за замовчуванням — локальний список із src/data/content.js (mp3 у public/audio/top).
+// Брати список з адмінки (GET {API_URL}/top-songs) можна, увімкнувши VITE_TOP_SONGS_API=true.
+const FROM_API = import.meta.env.VITE_TOP_SONGS_API === 'true'
+
 export function useTopSongs() {
   const [songs, setSongs] = useState(TOP_SONGS)
   useEffect(() => {
-    if (!API_URL) return
+    if (!FROM_API || !API_URL) return
     let alive = true
     const ctrl = new AbortController()
     const timer = setTimeout(() => ctrl.abort(), 60000) // безкоштовний сервер може «прокидатися» до хвилини

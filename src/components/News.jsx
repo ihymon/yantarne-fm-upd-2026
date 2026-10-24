@@ -25,7 +25,6 @@ export default function News() {
           <p>Незалежне місцеве радіо тримається на слухачах. Кожен донат — це ще одна година ефіру.</p>
           <div className="support-actions">
             <a className="btn btn-red magnet" href={STATION.monoJarUrl} target="_blank" rel="noopener noreferrer">Поповнити банку Mono</a>
-            <a className="support-alt" href={STATION.donateUrl} target="_blank" rel="noopener noreferrer">або Buy Me a Coffee</a>
           </div>
         </div>
       </div>

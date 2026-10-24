@@ -24,7 +24,6 @@ export const STATION = {
     { label: 'Реклама', display: '+380 68 302 05 55', tel: '+380683020555' }
   ],
   monoJarUrl: 'https://send.monobank.ua/jar/4vWF9VnCbp', // банка Monobank
-  donateUrl: 'https://buymeacoffee.com/yantarne.fm',
   youtubeChannel: 'https://www.youtube.com/channel/UCTaO-GLI_0srISh-Ase5NZw',
   socials: [
     { id: 'instagram', label: 'Instagram', url: 'https://www.instagram.com/yantarne.fm/' },

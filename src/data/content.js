@@ -51,15 +51,15 @@ export const ABOUT_CARDS = [
   { icon: music, title: 'Якісна українська музика' }
 ]
 
-// ТОП пісень. Актуальний список сайт бере з адмінки радіо (API, див. src/hooks/useTopSongs.js),
-// а цей список показується, поки API «прокидається» або якщо воно недоступне.
-const CDN = 'https://res.cloudinary.com/yuwmfinr/video/upload'
+// ТОП пісень: mp3 лежать у самому сайті (public/audio/top), тож не залежать від Cloudinary чи сервера.
+// Щоб замінити трек — покладіть новий mp3 у public/audio/top і змініть рядок нижче.
+const AUDIO = import.meta.env.BASE_URL + 'audio/top/'
 export const TOP_SONGS = [
-  { artist: 'Alena Omargalieva', title: 'Фанат', image: 'https://i1.sndcdn.com/artworks-LyRiL1lB839pLeAu-PD03aQ-t1080x1080.jpg', audio: CDN + '/v1788163201/1.mp3' },
-  { artist: 'DREVO', title: 'Енкарапіста', image: 'https://images.genius.com/73441c7e8af83ccc98e99d343e92a630.1000x1000x1.png', audio: CDN + '/v1788163196/2.mp3' },
-  { artist: 'Кажанна', title: 'Сльозка', image: 'https://images.genius.com/44f24c7b92bbde2c2607a0cbc024cbc9.1000x1000x1.png', audio: CDN + '/v1788163200/3.mp3' },
-  { artist: 'Jerry Heil & YARMAK', title: 'З якого ти поверху неба?', image: 'https://music.od.ua/i/covers/141764701343.webp', audio: CDN + '/v1788163190/4.mp3' },
-  { artist: 'DOROFEEVA', title: 'Японія', image: '', audio: CDN + '/v1788163188/5.mp3' }
+  { artist: 'Alena Omargalieva', title: 'Фанат', image: 'https://i1.sndcdn.com/artworks-LyRiL1lB839pLeAu-PD03aQ-t1080x1080.jpg', audio: AUDIO + '01-omargalieva-fanat.mp3' },
+  { artist: 'DREVO', title: 'Енкарапіста', image: 'https://images.genius.com/73441c7e8af83ccc98e99d343e92a630.1000x1000x1.png', audio: AUDIO + '02-drevo-enkarapista.mp3' },
+  { artist: 'Кажанна', title: 'Сльозка', image: 'https://images.genius.com/44f24c7b92bbde2c2607a0cbc024cbc9.1000x1000x1.png', audio: AUDIO + '03-kazhanna-slozka.mp3' },
+  { artist: 'Jerry Heil', title: 'З якого ти поверху неба?', image: 'https://music.od.ua/i/covers/141764701343.webp', audio: AUDIO + '04-jerry-heil-poverkh-neba.mp3' },
+  { artist: 'DOROFEEVA', title: 'Японія', image: '', audio: AUDIO + '05-dorofeeva-yaponiia.mp3' }
 ]
 
 export const ADS = [
