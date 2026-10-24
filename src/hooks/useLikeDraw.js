@@ -20,7 +20,7 @@ const env = import.meta.env
 // наприклад: { "enabled": true, "occasion": "Святковий розіграш", "prize": { "title": "...", "from": "від кав'ярні «Зерно»" },
 //             "sponsor": { "name": "Зерно", "logo": "https://…/logo.png", "tagline": "…", "pitch": "…", "url": "https://…" } }
 export const LIKE_CONFIG = {
-  enabled: env.VITE_PROMO_ENABLED !== 'false', // вимкнути: VITE_PROMO_ENABLED=false
+  enabled: env.VITE_PROMO_ENABLED === 'true', // ВИМКНЕНО за замовчуванням; увімкнути: VITE_PROMO_ENABLED=true
   demoData: true, // поки немає бекенду: лічильники й учасники змодельовані, показується позначка «ДЕМО»
   occasion: 'Розіграш дня', // підпис на кнопці-подарунку й у вікні
   cooldownMin: 15, // один лайк раз на 15 хвилин = один «квиток» у розіграш

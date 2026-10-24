@@ -30,6 +30,7 @@ export default function Contacts() {
   const r1 = useReveal(), r2 = useReveal()
   const [types, setTypes] = useState([])
   const [f, setF] = useState(EMPTY)
+  const [hp, setHp] = useState('')
   const [state, setState] = useState('idle') // idle | sending | done | error
   const [typeError, setTypeError] = useState(false)
   const set = k => e => setF(v => ({ ...v, [k]: e.target.value }))
@@ -70,9 +71,9 @@ export default function Contacts() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
-          _subject: 'Yantarne.FM — заявка на рекламу',
-          types: types.map(typeTitle).join(', '),
+          types: types.map(typeTitle),
           ...f,
+          website: hp, // пастка для ботів: людина це поле не бачить
           message: text
         })
       })
@@ -109,6 +110,7 @@ export default function Contacts() {
         </div>
 
         <form id="brief" className={'form brief reveal' + (state === 'done' ? ' done' : '')} ref={r2} onSubmit={submit} noValidate={false}>
+          <input type="text" name="website" value={hp} onChange={e => setHp(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" className="hp-field" />
           <div className="brief-head">
             <h3>Замовити <span className="accent">рекламу</span></h3>
             <p className="hint">Заповніть короткий бриф, і менеджер з реклами зв’яжеться з вами, щоб узгодити деталі та вартість.</p>

@@ -13,7 +13,7 @@ const TITLE = 'Yantarne.fm'
 
 export default function Hero({ view }) {
   const heroRef = useRef(null)
-  const { status, track, listeners, show } = usePlayer()
+  const { status, track, show } = usePlayer()
 
   const onMove = e => {
     const el = heroRef.current
@@ -51,7 +51,7 @@ export default function Hero({ view }) {
           <strong>{show.t}</strong>
           {status === 'error'
             ? <span className="err">Не вдалося підключитися до ефіру. Спробуйте ще раз.</span>
-            : <span>{hint}{listeners != null && status === 'playing' && <span className="listeners">· {listeners} слухачів</span>}</span>}
+            : <span>{hint}</span>}
         </div>
       </div>
       {JUKEBOX.enabled && <JukeboxLauncher />}
