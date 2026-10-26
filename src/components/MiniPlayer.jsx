@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { usePlayer } from '../context/PlayerContext'
 import PlayButton from './PlayButton'
 import { MiniEq } from './Equalizer'
@@ -24,10 +24,29 @@ export default function MiniPlayer() {
     error: 'Помилка підключення'
   }[status]
 
+  // довгу назву треку не обрізаємо, а плавно прокручуємо рядком
+  const box = useRef(null), line = useRef(null)
+  const [run, setRun] = useState(0)
+  useEffect(() => {
+    const measure = () => {
+      if (!box.current || !line.current) return
+      const extra = line.current.scrollWidth - box.current.clientWidth
+      setRun(extra > 4 ? extra : 0)
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [text, visible])
+
   return (
     <div className={'mini' + (visible ? ' show' : '')} aria-hidden={!visible}>
       <PlayButton />
-      <div className="info"><b>Yantarne.FM · 97.6 / 92.8</b><span aria-live="polite">{text}</span></div>
+      <div className="info">
+        <b>Yantarne.FM<span className="mini-freq"> · 97.6 / 92.8</span></b>
+        <span className={'mini-line' + (run ? ' run' : '')} ref={box} title={text}>
+          <span ref={line} aria-live="polite" style={run ? { '--run': -run + 'px', '--dur': Math.max(6, run / 30) + 's' } : undefined}>{text}</span>
+        </span>
+      </div>
       <MiniEq />
     </div>
   )

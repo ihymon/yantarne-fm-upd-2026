@@ -40,7 +40,7 @@ export const NEWS_COVER = team1
 // Партнери: додайте url, щоб логотип став посиланням
 export const PARTNERS = [
   { logo: p1, name: 'Комплекс медіа', url: '' },
-  { logo: p2, name: 'UDOX — IT company', url: '' },
+  { logo: p2, name: 'UDOX — IT company', url: 'https://www.udox.dev/' },
   { logo: p3, name: 'Creator IT Academy', url: 'https://creator-it-academy.com' },
   { logo: p4, name: 'Рятувальники Яворівщини', url: '' }
 ]

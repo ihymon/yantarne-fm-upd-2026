@@ -813,3 +813,42 @@ body.photo .jb-launch{background:rgba(11,11,11,.55)}
 .support-alt{font-size:14px;font-weight:700;color:var(--muted);border-bottom:1px solid var(--line-2);transition:color .2s,border-color .2s}
 .support-alt:hover{color:var(--text);border-color:var(--red)}
 .hp-field{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+
+/* ── адаптивність (27.10.2026) ── */
+html,body{overflow-x:clip}
+/* форма брифу: поля не виходять за край екрана */
+.contacts{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}
+.contacts>*,.brief-grid>*,.brief-grid label{min-width:0}
+.form input,.form select,.form textarea{width:100%;min-width:0;box-sizing:border-box}
+.form select{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+@media (max-width:900px){.contacts{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){
+  .form{padding:20px 16px;border-radius:22px}
+  .brief-grid{gap:14px}
+  .form input,.form select,.form textarea{font-size:16px;padding:14px 16px}
+  .form select{padding-right:40px}
+  .pick{gap:8px}
+  .pick-btn{padding:0 14px 0 10px;gap:8px}
+  .brief-foot .btn{width:100%;justify-content:center}
+  .brief-foot .hint{min-width:0}
+}
+/* команда: довге прізвище не виштовхує іконку Instagram */
+.mcap>div{min-width:0;flex:1}
+.mcap b{overflow-wrap:break-word}
+@media (max-width:600px){
+  .mcap{left:12px;right:12px;bottom:12px}
+  .mcap b{font-size:clamp(13px,4vw,16px);line-height:1.05}
+  .mcap span{font-size:12px}
+  .mcap .insta{position:absolute;right:0;bottom:calc(100% + 10px);width:34px;height:34px}
+  .insta svg{width:16px;height:16px}
+}
+/* нижній плеєр: довга назва треку прокручується рядком */
+.mini .info{overflow:hidden}
+.mini-line{display:block;overflow:hidden;white-space:nowrap;font-size:13px;color:var(--muted)}
+.mini-line>span{display:inline-block;white-space:nowrap}
+.mini-line.run{-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent)}
+.mini-line.run>span{animation:miniRun var(--dur,10s) linear 1.5s infinite alternate}
+@keyframes miniRun{0%,12%{transform:translateX(0)}88%,100%{transform:translateX(var(--run))}}
+@media (prefers-reduced-motion:reduce){.mini-line.run>span{animation:none}.mini-line>span{max-width:100%;overflow:hidden;text-overflow:ellipsis}}
+@media (max-width:480px){.mini{gap:10px;padding:0 10px 0 8px;height:68px}.mini .play{width:46px;height:46px}.mini-eq{padding-right:4px;gap:2px}.mini-eq span:nth-child(n+7){display:none}.mini-freq{display:none}}
+.mini .info b .mini-freq{font-size:inherit;color:inherit}
