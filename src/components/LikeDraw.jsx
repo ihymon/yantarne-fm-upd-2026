@@ -55,20 +55,41 @@ function DrawModal({ winner, onClose, prize = LIKE_CONFIG.prize, sponsor = LIKE_
   )
 }
 
+const HASH = '#rozygrash'
+const SEEN_KEY = 'yfm-promo-seen'
+const OPEN_EVENT = 'yfm:draw'
+
+// Відкрити вікно розіграшу з будь-якого місця сайту (напр. «Подивитися, як це виглядає» в розділі «Реклама»).
+// Якщо акція вимкнена, вікно відкривається як приклад для рекламодавців.
+export function openDrawPreview() {
+  window.dispatchEvent(new CustomEvent(OPEN_EVENT))
+}
+
 // Кнопка-подарунок на головному екрані (плаває в кутку) + вікно акції
 export default function LikeDraw() {
   const cfg = usePromoConfig()
-  if (!cfg.enabled) return null
-  return <LikeDrawInner cfg={cfg} />
+  const [preview, setPreview] = useState(false)
+
+  // акція вимкнена: вікно монтується лише на вимогу, тож не працюють таймери й автоматичний розіграш
+  useEffect(() => {
+    if (cfg.enabled) return
+    const on = () => setPreview(true)
+    const onHash = () => { if (location.hash === HASH) setPreview(true) }
+    onHash()
+    window.addEventListener(OPEN_EVENT, on)
+    window.addEventListener('hashchange', onHash)
+    return () => { window.removeEventListener(OPEN_EVENT, on); window.removeEventListener('hashchange', onHash) }
+  }, [cfg.enabled])
+
+  if (cfg.enabled) return <LikeDrawInner cfg={cfg} />
+  if (!preview) return null
+  return <LikeDrawInner cfg={cfg} preview onExit={() => setPreview(false)} />
 }
 
-const HASH = '#rozygrash'
-const SEEN_KEY = 'yfm-promo-seen'
-
-function LikeDrawInner({ cfg }) {
+function LikeDrawInner({ cfg, preview = false, onExit }) {
   const { current } = useClock()
   const d = useLikeDraw(current.t)
-  const [open, setOpen] = useState(() => typeof location !== 'undefined' && location.hash === HASH)
+  const [open, setOpen] = useState(() => preview || (typeof location !== 'undefined' && location.hash === HASH))
   const [hint, setHint] = useState(false)
   const [name, setName] = useState('')
   const [contact, setContact] = useState('')
@@ -78,10 +99,12 @@ function LikeDrawInner({ cfg }) {
   const heartId = useRef(0)
   const dialog = useRef(null)
   const launcher = useRef(null)
+  const returnFocus = useRef(null)
   const demoMode = typeof location !== 'undefined' && new URLSearchParams(location.search).has('demo')
 
   // підказка біля подарунка при першому візиті
   useEffect(() => {
+    if (preview) return
     let seen = false
     try { seen = !!localStorage.getItem(SEEN_KEY) } catch { /* ignore */ }
     if (seen) return
@@ -94,31 +117,34 @@ function LikeDrawInner({ cfg }) {
     setOpen(true); setHint(false)
     try { localStorage.setItem(SEEN_KEY, '1') } catch { /* ignore */ }
   }
-  const close = () => setOpen(false)
+  const close = () => { setOpen(false); if (preview) onExit?.() }
 
   // відкрите вікно: блокуємо прокрутку сторінки, фокус у вікно, Esc закриває, адреса #rozygrash
   useEffect(() => {
     if (!open) return
+    returnFocus.current = document.activeElement
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     if (location.hash !== HASH) history.replaceState(null, '', HASH)
     dialog.current?.focus()
-    const k = e => { if (e.key === 'Escape' && !d.winner) setOpen(false) }
+    const k = e => { if (e.key === 'Escape' && !d.winner) close() }
     window.addEventListener('keydown', k)
     return () => {
       document.body.style.overflow = prevOverflow
       window.removeEventListener('keydown', k)
       if (location.hash === HASH) history.replaceState(null, '', location.pathname + location.search)
-      launcher.current?.focus()
+      ;(launcher.current || returnFocus.current)?.focus?.()
     }
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // посилання на #rozygrash з будь-якого місця сайту відкриває вікно
+  // посилання на #rozygrash або openDrawPreview() з будь-якого місця сайту відкриває вікно
   useEffect(() => {
-    const on = () => { if (location.hash === HASH) openIt() }
-    window.addEventListener('hashchange', on)
-    return () => window.removeEventListener('hashchange', on)
-  }, [])
+    if (preview) return
+    const onHash = () => { if (location.hash === HASH) openIt() }
+    window.addEventListener('hashchange', onHash)
+    window.addEventListener(OPEN_EVENT, openIt)
+    return () => { window.removeEventListener('hashchange', onHash); window.removeEventListener(OPEN_EVENT, openIt) }
+  }, [preview])
 
   const onLike = () => {
     if (!d.like()) return
@@ -140,7 +166,7 @@ function LikeDrawInner({ cfg }) {
 
   return (
     <>
-      <button
+      {!preview && <button
         ref={launcher}
         type="button"
         className={'ld-fab' + (canLike ? ' ready' : '') + (open ? ' hidden' : '')}
@@ -151,8 +177,8 @@ function LikeDrawInner({ cfg }) {
         <span className="ld-fab-ic"><GiftIcon /></span>
         <span className="ld-fab-txt"><b>{cfg.occasion}</b><small>{d.me ? (canLike ? 'Можна лайкнути!' : 'Квитків: ' + d.tickets) : 'Лайкай і вигравай'}</small></span>
         {d.me && canLike && <i className="ld-fab-dot" aria-hidden="true" />}
-      </button>
-      {hint && !open && (
+      </button>}
+      {hint && !open && !preview && (
         <div className="ld-hint" role="status">
           <b>🎁 {cfg.occasion}!</b> Лайкайте ефір і вигравайте {cfg.prize.title.toLowerCase()}{cfg.sponsor ? ' від ' + cfg.sponsor.name : ''}
           <button type="button" aria-label="Закрити підказку" onClick={() => setHint(false)}>×</button>
@@ -163,6 +189,11 @@ function LikeDrawInner({ cfg }) {
         <div className="ld-overlay" onClick={e => { if (e.target === e.currentTarget) close() }}>
           <div className="ld-dialog" role="dialog" aria-modal="true" aria-labelledby="ld-title" tabIndex={-1} ref={dialog}>
             <button type="button" className="ld-close" aria-label="Закрити" onClick={close}>×</button>
+            {preview && (
+              <p className="ld-preview-note">
+                <b>Приклад для партнерів.</b> Так акція виглядає для слухачів. Зараз розіграш не проводиться, цифри та учасники змодельовані.
+              </p>
+            )}
             <div className="likes">
               <div className="ld-main">
                 <div className="ld-head">

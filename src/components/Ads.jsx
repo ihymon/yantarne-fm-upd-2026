@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { ADS } from '../data/content'
+import { ADS, AD_REACH } from '../data/content'
+import { openDrawPreview } from './LikeDraw'
 import { useReveal } from '../hooks/useReveal'
 
 // Відкрити бриф у розділі «Контакти» з уже вибраним типом реклами
@@ -31,11 +32,41 @@ function Item({ a, i, open, onToggle }) {
               {a.text.map(p => <p key={p}>{p}</p>)}
               <div className="acc-actions">
                 <button type="button" className="btn btn-red acc-order" tabIndex={open ? 0 : -1} onClick={() => orderAd(a.id)}>{a.id === 'gift' ? 'Стати партнером →' : 'Замовити →'}</button>
-                {a.demo && <a className="btn acc-demo" href="#rozygrash" tabIndex={open ? 0 : -1}>Подивитися, як це виглядає</a>}
+                {a.demo && <a className="btn acc-demo" href="#rozygrash" tabIndex={open ? 0 : -1} onClick={e => { e.preventDefault(); openDrawPreview() }}>Подивитися, як це виглядає</a>}
               </div>
             </div>
             <div className="chips">{a.chips.map(c => <span key={c}>{c}</span>)}</div>
           </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Коротко для рекламодавця: де нас чути, хто слухає і чим це вигідно
+function Reach() {
+  const reveal = useReveal()
+  const R = AD_REACH
+  return (
+    <div className="reach reveal" ref={reveal}>
+      <p className="reach-lead">{R.lead}</p>
+      <div className="reach-grid">
+        <div className="reach-cell reach-fm">
+          <h3>Де нас чути</h3>
+          <ul className="reach-freqs">
+            {R.coverage.map(c => (
+              <li key={c.mhz}><b>{c.mhz}<span> FM</span></b><span><strong>{c.city}</strong>{c.note}</span></li>
+            ))}
+          </ul>
+          <p className="reach-note">{R.online}</p>
+        </div>
+        <div className="reach-cell">
+          <h3>Хто слухає</h3>
+          <p>{R.audience}</p>
+        </div>
+        <div className="reach-cell">
+          <h3>Що отримує рекламодавець</h3>
+          <ul className="reach-perks">{R.perks.map(x => <li key={x}>{x}</li>)}</ul>
         </div>
       </div>
     </div>
@@ -52,6 +83,8 @@ export default function Ads() {
           <h2 className="sec-title"><span className="accent">Р</span>еклама на Yantarne.<span className="accent">FM</span></h2>
           <div className="live"><i></i>РЕКЛАМА В ПРЯМОМУ ЕФІРІ</div>
         </div>
+        <Reach />
+        <h3 className="acc-title">Формати реклами</h3>
         <div className="acc">
           {ADS.map((a, i) => <Item key={a.id} a={a} i={i} open={open === i} onToggle={() => setOpen(o => (o === i ? -1 : i))} />)}
         </div>

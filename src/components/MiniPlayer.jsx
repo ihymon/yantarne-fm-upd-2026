@@ -17,9 +17,39 @@ export default function MiniPlayer() {
     return () => window.removeEventListener('scroll', on)
   }, [])
 
+  // поки на екрані форма заявки або курсор у полі вводу — плеєр і кнопка розіграшу ховаються,
+  // щоб не перекривати поля й кнопку «Надіслати заявку»
+  const [formZone, setFormZone] = useState(false)
+  useEffect(() => {
+    let inView = false, typing = false
+    const apply = () => {
+      const on = inView || typing
+      setFormZone(on)
+      document.body.classList.toggle('form-zone', on)
+    }
+    const isField = el => el && el.matches?.('input, textarea, select, [contenteditable="true"]')
+    const onFocus = e => { typing = isField(e.target); apply() }
+    const onBlur = () => { setTimeout(() => { typing = isField(document.activeElement); apply() }, 0) }
+    document.addEventListener('focusin', onFocus)
+    document.addEventListener('focusout', onBlur)
+    let io
+    const form = document.getElementById('brief')
+    if (form && 'IntersectionObserver' in window) {
+      io = new IntersectionObserver(([en]) => { inView = en.isIntersecting; apply() })
+      io.observe(form)
+    }
+    return () => {
+      document.removeEventListener('focusin', onFocus)
+      document.removeEventListener('focusout', onBlur)
+      io?.disconnect()
+      document.body.classList.remove('form-zone')
+    }
+  }, [])
+
   const text = {
     paused: 'На паузі',
     loading: 'Підключаємось…',
+    reconnecting: 'Зв’язок перервався. Відновлюємо ефір…',
     playing: 'Зараз грає: ' + (track || show.t),
     error: 'Помилка підключення'
   }[status]
@@ -39,7 +69,7 @@ export default function MiniPlayer() {
   }, [text, visible])
 
   return (
-    <div className={'mini' + (visible ? ' show' : '')} aria-hidden={!visible}>
+    <div className={'mini' + (visible && !formZone ? ' show' : '')} aria-hidden={!visible || formZone} inert={!visible || formZone}>
       <PlayButton />
       <div className="info">
         <b>Yantarne.FM<span className="mini-freq"> · 97.6 / 92.8</span></b>

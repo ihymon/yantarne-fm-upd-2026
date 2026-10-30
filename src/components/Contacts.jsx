@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react'
-import { STATION, FORM_ENDPOINT } from '../data/station'
+import { STATION, FORM_ENDPOINT, TELEGRAM_URL } from '../data/station'
 import { ADS, BRIEF_START, BRIEF_BUDGET, BRIEF_CONTACT } from '../data/content'
 import { useReveal } from '../hooks/useReveal'
 import { SOCIAL_ICONS } from './Icons'
 
 const EMPTY = { name: '', company: '', phone: '', email: '', contactVia: BRIEF_CONTACT[0], start: BRIEF_START[0], budget: BRIEF_BUDGET[0], about: '' }
 const typeTitle = id => ADS.find(a => a.id === id)?.title || id
+const NO_TYPE = 'Формат не обрано — порадьте'
+const typeTitles = types => (types.length ? types.map(typeTitle) : [NO_TYPE])
+const tgHandle = url => '@' + url.replace(/^https?:\/\/(www\.)?t\.me\//, '').replace(/\/$/, '')
 
 // Текст заявки для листа (коли форма працює без сервісу прийому заявок)
 function briefText(types, f) {
   return [
     'ЗАЯВКА НА РЕКЛАМУ — Yantarne.FM',
     '',
-    'Тип реклами: ' + types.map(typeTitle).join(', '),
+    'Тип реклами: ' + typeTitles(types).join(', '),
     'Ім’я: ' + f.name,
     f.company ? 'Компанія / бренд: ' + f.company : null,
     'Телефон: ' + f.phone,
@@ -32,7 +35,7 @@ export default function Contacts() {
   const [f, setF] = useState(EMPTY)
   const [hp, setHp] = useState('')
   const [state, setState] = useState('idle') // idle | sending | done | error
-  const [typeError, setTypeError] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
   const set = k => e => setF(v => ({ ...v, [k]: e.target.value }))
 
   // кнопка «Замовити» в розділі «Реклама» передає тип реклами
@@ -41,7 +44,6 @@ export default function Contacts() {
       const id = e.detail?.type
       if (!id) return
       setTypes(t => (t.includes(id) ? t : [...t, id]))
-      setTypeError(false)
       setState(s => (s === 'done' ? 'idle' : s))
     }
     window.addEventListener('yfm:brief', on)
@@ -50,12 +52,10 @@ export default function Contacts() {
 
   const toggleType = id => {
     setTypes(t => (t.includes(id) ? t.filter(x => x !== id) : [...t, id]))
-    setTypeError(false)
   }
 
   const submit = async e => {
     e.preventDefault()
-    if (!types.length) { setTypeError(true); document.getElementById('brief-types')?.focus(); return }
     const text = briefText(types, f)
 
     if (!FORM_ENDPOINT) {
@@ -71,7 +71,7 @@ export default function Contacts() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
-          types: types.map(typeTitle),
+          types: typeTitles(types),
           ...f,
           website: hp, // пастка для ботів: людина це поле не бачить
           message: text
@@ -89,7 +89,7 @@ export default function Contacts() {
     if (state === 'done') document.getElementById('brief')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }, [state])
 
-  const reset = () => { setF(EMPTY); setTypes([]); setState('idle') }
+  const reset = () => { setF(EMPTY); setTypes([]); setMoreOpen(false); setState('idle') }
   const adsPhone = STATION.phones.find(p => p.label === 'Реклама') || STATION.phones[0]
 
   return (
@@ -100,6 +100,7 @@ export default function Contacts() {
           <ul className="clist">
             <li><small>Емейл</small><a href={'mailto:' + STATION.email}>{STATION.email}</a></li>
             {STATION.phones.map(p => <li key={p.tel}><small>{p.label}</small><a href={'tel:' + p.tel}>{p.display}</a></li>)}
+            <li><small>Telegram</small><a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer">{tgHandle(TELEGRAM_URL)}</a></li>
           </ul>
           <div className="socials">
             {STATION.socials.map(s => {
@@ -113,46 +114,56 @@ export default function Contacts() {
           <input type="text" name="website" value={hp} onChange={e => setHp(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" className="hp-field" />
           <div className="brief-head">
             <h3>Замовити <span className="accent">рекламу</span></h3>
-            <p className="hint">Заповніть короткий бриф, і менеджер з реклами зв’яжеться з вами, щоб узгодити деталі та вартість.</p>
+            <p className="hint">Три поля — і менеджер з реклами зателефонує, щоб підібрати формат і узгодити вартість.</p>
           </div>
 
-          <fieldset className="brief-types">
-            <legend>Тип реклами <i aria-hidden="true">*</i> <span>можна вибрати кілька</span></legend>
-            <div className="pick" id="brief-types" tabIndex={-1} role="group" aria-invalid={typeError}>
-              {ADS.map(a => {
-                const on = types.includes(a.id)
-                return (
-                  <button key={a.id} type="button" className={'pick-btn' + (on ? ' on' : '')} aria-pressed={on} onClick={() => toggleType(a.id)}>
-                    <span className="tick" aria-hidden="true" />{a.short}
-                  </button>
-                )
-              })}
-            </div>
-            {typeError && <p className="err" role="alert">Оберіть хоча б один тип реклами.</p>}
-          </fieldset>
-
-          <div className="brief-grid">
+          <div className="brief-main">
             <label><span>Ім’я <i aria-hidden="true">*</i></span><input name="name" required autoComplete="name" placeholder="Як до вас звертатися" value={f.name} onChange={set('name')} /></label>
-            <label>Компанія / бренд<input name="company" autoComplete="organization" placeholder="Назва бізнесу" value={f.company} onChange={set('company')} /></label>
             <label><span>Телефон <i aria-hidden="true">*</i></span><input name="phone" type="tel" required autoComplete="tel" inputMode="tel" pattern="[\d\s()+\-]{9,}" placeholder="+380 __ ___ __ __" value={f.phone} onChange={set('phone')} /></label>
-            <label>Email<input name="email" type="email" autoComplete="email" placeholder="name@company.com" value={f.email} onChange={set('email')} /></label>
-            <label>Як зручніше зв’язатися
-              <select name="contactVia" value={f.contactVia} onChange={set('contactVia')}>{BRIEF_CONTACT.map(o => <option key={o}>{o}</option>)}</select>
-            </label>
-            <label>Старт кампанії
-              <select name="start" value={f.start} onChange={set('start')}>{BRIEF_START.map(o => <option key={o}>{o}</option>)}</select>
-            </label>
-            <label className="wide">Орієнтовний бюджет
-              <select name="budget" value={f.budget} onChange={set('budget')}>{BRIEF_BUDGET.map(o => <option key={o}>{o}</option>)}</select>
-            </label>
-            <label className="wide">Що рекламуємо
-              <textarea name="about" rows="4" placeholder="Коротко про товар, послугу чи подію, акцію, цільову аудиторію, побажання щодо формату" value={f.about} onChange={set('about')} />
+            <label className="wide"><span>Що рекламуємо <i aria-hidden="true">*</i></span>
+              <textarea name="about" rows="3" required placeholder="Напр.: відкриття кав’ярні, знижки в магазині, концерт" value={f.about} onChange={set('about')} />
             </label>
           </div>
+
+          {types.length > 0 && (
+            <p className="brief-chosen">Формат: <b>{types.map(t => ADS.find(a => a.id === t)?.short || t).join(', ')}</b> <button type="button" onClick={() => setMoreOpen(true)}>змінити</button></p>
+          )}
+
+          <details className="brief-more" open={moreOpen} onToggle={e => setMoreOpen(e.currentTarget.open)}>
+            <summary>Додаткова інформація <span>необов’язково</span></summary>
+            <div className="brief-more-in">
+              <fieldset className="brief-types">
+                <legend>Формат реклами <span>можна вибрати кілька або залишити нам</span></legend>
+                <div className="pick" id="brief-types" role="group">
+                  {ADS.map(a => {
+                    const on = types.includes(a.id)
+                    return (
+                      <button key={a.id} type="button" className={'pick-btn' + (on ? ' on' : '')} aria-pressed={on} onClick={() => toggleType(a.id)}>
+                        <span className="tick" aria-hidden="true" />{a.short}
+                      </button>
+                    )
+                  })}
+                </div>
+              </fieldset>
+              <div className="brief-grid">
+                <label>Компанія / бренд<input name="company" autoComplete="organization" placeholder="Назва бізнесу" value={f.company} onChange={set('company')} /></label>
+                <label>Email<input name="email" type="email" autoComplete="email" placeholder="name@company.com" value={f.email} onChange={set('email')} /></label>
+                <label>Як зручніше зв’язатися
+                  <select name="contactVia" value={f.contactVia} onChange={set('contactVia')}>{BRIEF_CONTACT.map(o => <option key={o}>{o}</option>)}</select>
+                </label>
+                <label>Старт кампанії
+                  <select name="start" value={f.start} onChange={set('start')}>{BRIEF_START.map(o => <option key={o}>{o}</option>)}</select>
+                </label>
+                <label className="wide">Орієнтовний бюджет
+                  <select name="budget" value={f.budget} onChange={set('budget')}>{BRIEF_BUDGET.map(o => <option key={o}>{o}</option>)}</select>
+                </label>
+              </div>
+            </div>
+          </details>
 
           {state === 'error' && <p className="err" role="alert">Не вдалося надіслати заявку. Спробуйте ще раз або зателефонуйте: {adsPhone.display}.</p>}
           <div className="brief-foot">
-            <button className="btn btn-red" type="submit" disabled={state === 'sending'} onClick={() => { if (!types.length) setTypeError(true) }}>{state === 'sending' ? 'Надсилаємо…' : 'Надіслати заявку'}</button>
+            <button className="btn btn-red" type="submit" disabled={state === 'sending'}>{state === 'sending' ? 'Надсилаємо…' : 'Надіслати заявку'}</button>
             <p className="hint">Надсилаючи заявку, ви погоджуєтесь на обробку контактних даних для зв’язку з вами.</p>
           </div>
 

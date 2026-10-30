@@ -12,7 +12,7 @@ import { JukeboxProvider, JUKEBOX } from './context/JukeboxContext'
 import TopSongs from './components/TopSongs'
 import About from './components/About'
 import Team from './components/Team'
-import News from './components/News'
+import Support from './components/Support'
 import Ads from './components/Ads'
 import Partners from './components/Partners'
 import Contacts from './components/Contacts'
@@ -48,7 +48,7 @@ export default function App() {
           <TopSongs />
           <About />
           <Team />
-          <News />
+          <Support />
           <Ads />
           <Partners />
           <Contacts />

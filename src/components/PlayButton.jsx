@@ -3,7 +3,7 @@ import { PlayIcon, PauseIcon } from './Icons'
 
 export default function PlayButton({ className = '' }) {
   const { status, toggle } = usePlayer()
-  const active = status === 'playing' || status === 'loading'
+  const active = status === 'playing' || status === 'loading' || status === 'reconnecting'
   return (
     <button type="button" className={'play ' + className} onClick={toggle} aria-label={active ? 'Пауза' : 'Слухати ефір'} aria-pressed={active}>
       <PlayIcon />

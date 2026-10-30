@@ -9,6 +9,7 @@ export default function Footer() {
         <div className="foot">
           <img src={logo} alt="Yantarne FM" className="flogo" width="141" height="56" loading="lazy" />
           <div className="fcol">
+            <p>Радіо Новояворівська та Івано-Франкового: <b>97.6 FM</b> і <b>92.8 FM</b>.</p>
             <p><b>Якщо</b> у вас є новина, якою хочете поділитися — надсилайте нам.</p>
             <p>Хочете стати частинкою команди або маєте класні ідеї — пишіть нам.</p>
             <p>Питання щодо реклами та співпраці — телефонуйте!</p>

@@ -24,7 +24,7 @@ export default function Team() {
       <div className="wrap">
         <div className="tt-head reveal" ref={reveal}>
           <h2 className="sec-title"><span className="accent">К</span>оманда</h2>
-          <p className="lead">Голоси, які будять Новояворівськ зранку і тримають на хвилі до ночі.</p>
+          <p className="lead">Голоси, які будять Новояворівськ та Івано-Франкове зранку і тримають на хвилі до ночі.</p>
         </div>
         <div className="team">{TEAM.map(p => <Member key={p.name} p={p} />)}</div>
       </div>

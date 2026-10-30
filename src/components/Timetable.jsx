@@ -29,12 +29,68 @@ function NowNext({ today, hours, current }) {
         <span className="nn-host">{hostText(next)}</span>
         <small>{list[0] ? 'Почнеться через ' + dur((next.a - hours) * 60) : 'Завтра'}</small>
       </div>
-      <div className="nn-card nn-legend">
-        <small className="nn-lab">ЛЕГЕНДА</small>
-        <div className="legend">
-          {Object.entries(TYPES).map(([k, T]) => <span key={k}><i style={{ background: T.bg }} />{T.n}</span>)}
-        </div>
-      </div>
+    </div>
+  )
+}
+
+function Legend() {
+  return (
+    <div className="legend tt-legend">
+      {Object.entries(TYPES).map(([k, T]) => <span key={k}><i style={{ background: T.bg }} />{T.n}</span>)}
+    </div>
+  )
+}
+
+// Підпис під списком: коли звучать новини й погода в цей день
+function insertsNote(day) {
+  const ins = itemsForDay(day).filter(p => p.ins)
+  const news = ins.filter(p => p.k === 'news').length
+  const weather = ins.filter(p => p.k === 'weather').sort((a, b) => a.a - b.a).map(p => fmt(p.a))
+  const parts = []
+  if (news) parts.push(news > 6 ? 'новини щогодини' : 'новини о ' + ins.filter(p => p.k === 'news').map(p => fmt(p.a)).join(', '))
+  if (weather.length) parts.push('погода о ' + weather.join(', '))
+  return parts.length ? 'Між програмами: ' + parts.join('; ') + '. Усе разом — у детальній часовій шкалі.' : ''
+}
+
+// Простий список програм на обраний день (без вставок новин, погоди й реклами)
+function DayList({ day, today, hours, reminders, onRemind }) {
+  const reveal = useReveal()
+  const isToday = day === today
+  // однакові програми, що йдуть підряд (напр. «Музика без перерв» 12–19 і 19–20), показуємо одним рядком
+  const list = itemsForDay(day).filter(p => !p.ins).sort((a, b) => a.a - b.a)
+    .reduce((acc, p) => {
+      const last = acc[acc.length - 1]
+      if (last && last.t === p.t && last.k === p.k && Math.abs(last.b - p.a) < 1e-9) acc[acc.length - 1] = { ...last, b: p.b }
+      else acc.push(p)
+      return acc
+    }, [])
+  return (
+    <div className="tt-day reveal" ref={reveal}>
+      <h3 className="tt-day-title">{isToday ? 'Сьогодні, ' + DAY_FULL[day].toLowerCase() : DAY_FULL[day]}</h3>
+      <ol className="tt-list">
+        {list.map(p => {
+          const cur = isToday && hours >= p.a && hours < p.b
+          const past = isToday && hours >= p.b
+          const key = itemKey(day, p)
+          const on = !!reminders[key]
+          const canRemind = p.k !== 'music' && !past && !cur
+          return (
+            <li key={key} className={'tt-row' + (cur ? ' cur' : '') + (past ? ' past' : '') + (p.k === 'show' || p.k === 'special' ? ' hl' : '')}>
+              <span className="tt-row-time">{fmt(p.a)}–{fmt(p.b)}</span>
+              <div className="tt-row-main">
+                <b>{p.t}</b>
+                {p.h && <span className="tt-row-host">{p.h}</span>}
+                {(p.k === 'show' || p.k === 'special') && <span className="tt-row-desc">{p.x}</span>}
+              </div>
+              <div className="tt-row-side">
+                {cur && <span className="tt-row-live"><i />Зараз</span>}
+                {canRemind && <button type="button" className={'remind sm' + (on ? ' on' : '')} aria-pressed={on} aria-label={(on ? 'Скасувати нагадування: ' : 'Нагадати про ') + p.t} onClick={() => onRemind(key)}>{on ? '✓ Нагадаю' : 'Нагадати'}</button>}
+              </div>
+            </li>
+          )
+        })}
+      </ol>
+      <p className="tt-day-note">{insertsNote(day)}</p>
     </div>
   )
 }
@@ -79,11 +135,12 @@ export default function Timetable() {
   const [day, setDay] = useState(today)
   const [selected, setSelected] = useState(null)
   const [phase, setPhase] = useState(0) // 0 — приховано, 1 — з'являються, 2 — показано
+  const [showLine, setShowLine] = useState(false) // детальна часова шкала (додатково)
   const [reminders, setReminders] = useLocalStorage('yfm-reminders', {})
   const notified = useRef({})
   const scroller = useRef(null)
   const drag = useRef({ down: false, moved: false, sx: 0, sl: 0 })
-  const r1 = useReveal(), r2 = useReveal(), r3 = useReveal()
+  const r1 = useReveal()
 
   const items = useMemo(() => itemsForDay(day), [day])
   const isToday = day === today
@@ -99,9 +156,9 @@ export default function Timetable() {
     const cur = day === today ? PROGRAMS.find(p => p.d.includes(day) && n >= p.a && n < p.b) : null
     const first = cur || items.find(p => !p.ins && p.k !== 'music') || items[0]
     setSelected(first)
-    scrollToHour(day === today ? n - 1.5 : first.a - 1, false)
+    requestAnimationFrame(() => scrollToHour(day === today ? n - 1.5 : first.a - 1, false))
     return () => { clearTimeout(id); clearTimeout(id2) }
-  }, [day]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [day, showLine]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // нагадування: браузерне сповіщення, коли програма починається (поки сайт відкритий)
   useEffect(() => {
@@ -163,56 +220,67 @@ export default function Timetable() {
 
         <NowNext today={today} hours={hours} current={current} />
 
-        <div className="tt-bar reveal" ref={r2}>
-          <span className="tt-hint">← Гортайте або тягніть стрічку · натисніть на програму або вставку →</span>
-          <div className="tt-nav">
-            <button type="button" className="tt-arrow" aria-label="Раніше" onClick={() => scroller.current.scrollBy({ left: -HW * 4, behavior: 'smooth' })}><ArrowLeft /></button>
-            <button type="button" className="tt-now-btn" onClick={goNow}>До «зараз»</button>
-            <button type="button" className="tt-arrow" aria-label="Пізніше" onClick={() => scroller.current.scrollBy({ left: HW * 4, behavior: 'smooth' })}><ArrowRight /></button>
-          </div>
-        </div>
+        <DayList day={day} today={today} hours={hours} reminders={reminders} onRemind={toggleReminder} />
 
-        <div className="tt-scroll reveal" ref={el => { scroller.current = el; r3(el) }} onPointerDown={onPointerDown}>
-          <div className="tt">
-            <div className="hours">{HOURS.map(h => <div key={h}>{h}</div>)}</div>
-            <div className="lane-lab" style={{ top: 58 }}>ПРОГРАМИ</div>
-            <div className="lane-lab" style={{ top: 170 }}>ВСТАВКИ</div>
-            {isToday && (
-              <div className="nowline" style={{ left: hours * HW }}><em>{fmt(Math.floor(hours * 60) / 60)}</em></div>
-            )}
-            {items.map((p, i) => {
-              const T = TYPES[p.k]
-              const w = (p.b - p.a) * HW - (p.ins ? 0 : 4)
-              const past = isToday && hours >= p.b
-              const cur = isToday && !p.ins && hours >= p.a && hours < p.b
-              const cls = ['slot', p.ins ? 'ins' : 'main', phase > 0 && 'show', past && 'past', cur && 'cur', selected === p && 'sel'].filter(Boolean).join(' ')
-              return (
-                <button
-                  key={day + '-' + i}
-                  type="button"
-                  className={cls}
-                  title={p.t + ' · ' + fmt(p.a) + '–' + fmt(p.b)}
-                  style={{
-                    left: p.a * HW + (p.ins ? 0 : 2),
-                    width: p.ins ? 26 : Math.max(w, 40),
-                    background: T.bg,
-                    color: T.fg,
-                    border: p.k === 'music' ? '1px solid #363636' : undefined,
-                    transitionDelay: phase === 1 ? Math.min(i, 20) * 30 + 'ms' : undefined
-                  }}
-                  onClick={() => { if (!drag.current.moved) setSelected(p) }}
-                >
-                  {p.ins
-                    ? <b>{p.k === 'news' ? 'Н' : p.k === 'weather' ? '☀' : '₴'}</b>
-                    : <><b>{p.t}</b><small>{fmt(p.a)} – {fmt(p.b)}{p.h ? ' · ' + p.h : ''}</small></>}
-                  {cur && <span className="onair" />}
-                </button>
-              )
-            })}
-          </div>
-        </div>
+        <button type="button" className="tt-more" aria-expanded={showLine} aria-controls="tt-line" onClick={() => setShowLine(v => !v)}>
+          {showLine ? 'Сховати часову шкалу' : 'Детальна часова шкала'}
+          <span className="tt-more-sub">з новинами, погодою та рекламними блоками</span>
+        </button>
 
-        <Detail item={selected} day={day} today={today} hours={hours} reminders={reminders} onRemind={toggleReminder} flashKey={selected ? itemKey(day, selected) : ''} />
+        {showLine && (
+          <div id="tt-line" className="tt-line">
+            <div className="tt-bar">
+              <Legend />
+              <div className="tt-nav">
+                <button type="button" className="tt-arrow" aria-label="Раніше" onClick={() => scroller.current.scrollBy({ left: -HW * 4, behavior: 'smooth' })}><ArrowLeft /></button>
+                <button type="button" className="tt-now-btn" onClick={goNow}>До «зараз»</button>
+                <button type="button" className="tt-arrow" aria-label="Пізніше" onClick={() => scroller.current.scrollBy({ left: HW * 4, behavior: 'smooth' })}><ArrowRight /></button>
+              </div>
+            </div>
+
+            <div className="tt-scroll" ref={scroller} onPointerDown={onPointerDown}>
+              <div className="tt">
+              <div className="hours">{HOURS.map(h => <div key={h}>{h}</div>)}</div>
+              <div className="lane-lab" style={{ top: 58 }}>ПРОГРАМИ</div>
+              <div className="lane-lab" style={{ top: 170 }}>ВСТАВКИ</div>
+              {isToday && (
+                <div className="nowline" style={{ left: hours * HW }}><em>{fmt(Math.floor(hours * 60) / 60)}</em></div>
+              )}
+              {items.map((p, i) => {
+                const T = TYPES[p.k]
+                const w = (p.b - p.a) * HW - (p.ins ? 0 : 4)
+                const past = isToday && hours >= p.b
+                const cur = isToday && !p.ins && hours >= p.a && hours < p.b
+                const cls = ['slot', p.ins ? 'ins' : 'main', phase > 0 && 'show', past && 'past', cur && 'cur', selected === p && 'sel'].filter(Boolean).join(' ')
+                return (
+                  <button
+                    key={day + '-' + i}
+                    type="button"
+                    className={cls}
+                    title={p.t + ' · ' + fmt(p.a) + '–' + fmt(p.b)}
+                    style={{
+                      left: p.a * HW + (p.ins ? 0 : 2),
+                      width: p.ins ? 26 : Math.max(w, 40),
+                      background: T.bg,
+                      color: T.fg,
+                      border: p.k === 'music' ? '1px solid #363636' : undefined,
+                      transitionDelay: phase === 1 ? Math.min(i, 20) * 30 + 'ms' : undefined
+                    }}
+                    onClick={() => { if (!drag.current.moved) setSelected(p) }}
+                  >
+                    {p.ins
+                      ? <b>{p.k === 'news' ? 'Н' : p.k === 'weather' ? '☀' : '₴'}</b>
+                      : <><b>{p.t}</b><small>{fmt(p.a)} – {fmt(p.b)}{p.h ? ' · ' + p.h : ''}</small></>}
+                    {cur && <span className="onair" />}
+                  </button>
+                )
+              })}
+              </div>
+            </div>
+
+            <Detail item={selected} day={day} today={today} hours={hours} reminders={reminders} onRemind={toggleReminder} flashKey={selected ? itemKey(day, selected) : ''} />
+          </div>
+        )}
       </div>
     </section>
   )

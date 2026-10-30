@@ -14,6 +14,12 @@ export default function HeroSlider({ active, heroRef }) {
   const left = useRef(DUR)
   const reset = useRef(false)
   const n = HERO_SLIDES.length
+  // завантажуємо лише показані фото і наступне: решта не тягнеться, поки до неї не дійде черга
+  const [ready, setReady] = useState(() => new Set([0, 1]))
+  useEffect(() => {
+    if (!active) return
+    setReady(r => (r.has(i) && r.has((i + 1) % n) ? r : new Set([...r, i, (i + 1) % n])))
+  }, [i, active, n])
 
   const go = useCallback(k => {
     setI(((k % n) + n) % n)
@@ -79,7 +85,7 @@ export default function HeroSlider({ active, heroRef }) {
       <div className="slider" aria-roledescription="carousel" aria-label="Фото">
         {HERO_SLIDES.map((s, k) => (
           <div key={s.src} className={'slide' + (k === i ? ' on' : '')} aria-hidden={k !== i}>
-            <img src={s.src} alt={s.alt} loading={active && k === 0 ? 'eager' : 'lazy'} />
+            {active && ready.has(k) && <img src={s.src} alt={s.alt} decoding="async" fetchPriority={k === i ? 'high' : 'low'} />}
           </div>
         ))}
       </div>

@@ -24,6 +24,7 @@ export default function Hero({ view }) {
 
   let hint = fmt(show.a) + ' – ' + fmt(show.b) + ' · натисніть, щоб слухати'
   if (status === 'loading') hint = 'Підключаємось до ефіру…'
+  if (status === 'reconnecting') hint = 'Зв’язок перервався. Відновлюємо ефір…'
   if (status === 'playing') hint = track ? '♪ ' + track : fmt(show.a) + ' – ' + fmt(show.b)
 
   return (
@@ -32,7 +33,7 @@ export default function Hero({ view }) {
       <div className="blob a"></div><div className="blob b"></div><div className="spot"></div>
       <HeroEq />
       {JUKEBOX.enabled && <JukeboxBubbles />}
-      <div className="kicker">{STATION.city.toUpperCase()} · З {STATION.since} РОКУ</div>
+      <div className="kicker">{STATION.communities.join(' · ').toUpperCase()}<span className="kicker-dot"> · </span><span className="kicker-since">З {STATION.since} РОКУ</span></div>
       <h1 className="title" lang="en" aria-label={TITLE}>
         {TITLE.split('').map((c, i) => <span key={i} className="ch" aria-hidden="true" style={{ animationDelay: i * 0.07 + 's' }}>{c}</span>)}
       </h1>

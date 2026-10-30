@@ -14,6 +14,7 @@ export const InstagramIcon = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" /></svg>
 )
 export const SOCIAL_ICONS = {
+  telegram: () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4.5 2.8 11.4c-.9.4-.9 1.4 0 1.7l4.6 1.5 1.7 5.3c.2.7 1 .9 1.5.4l2.6-2.4 4.7 3.5c.6.4 1.4.1 1.6-.6L22.3 5.8c.2-.9-.6-1.6-1.3-1.3z" /><path d="m7.4 14.6 10-6.6-7.3 7.6" /></svg>,
   instagram: InstagramIcon,
   facebook: () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h-2.5A3.5 3.5 0 0 0 9 6.5V9H7v3.5h2V21h3.5v-8.5H15l.5-3.5h-3V7a1 1 0 0 1 1-1H15z" /></svg>,
   youtube: () => <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="4" /><path d="M10 9l5 3-5 3z" fill="currentColor" /></svg>,

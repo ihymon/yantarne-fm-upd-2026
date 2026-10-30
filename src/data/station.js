@@ -9,11 +9,15 @@ export const API_URL = (env.VITE_API_URL || 'https://yantarnefm-server-4j82.onre
 // Заявки «Замовити рекламу» → сервер радіо → Telegram-бот адміністраторам
 export const FORM_ENDPOINT = env.VITE_FORM_ENDPOINT || API_URL + '/ad-request'
 export const YOUTUBE_VIDEO_ID = env.VITE_YOUTUBE_VIDEO_ID || ''
+// Telegram-канал станції (можна перевизначити через VITE_TELEGRAM_URL у .env)
+export const TELEGRAM_URL = env.VITE_TELEGRAM_URL || 'https://t.me/yantarnefm24'
 
 export const STATION = {
   name: 'Yantarne.FM',
   since: 2021,
   city: 'Новояворівськ',
+  // громади, які чують станцію в FM
+  communities: ['Новояворівськ', 'Івано-Франкове'],
   frequencies: [
     { mhz: '97.6', city: 'Новояворівськ' },
     { mhz: '92.8', city: 'Івано-Франкове' }
@@ -26,6 +30,7 @@ export const STATION = {
   monoJarUrl: 'https://send.monobank.ua/jar/4vWF9VnCbp', // банка Monobank
   youtubeChannel: 'https://www.youtube.com/channel/UCTaO-GLI_0srISh-Ase5NZw',
   socials: [
+    { id: 'telegram', label: 'Telegram', url: TELEGRAM_URL },
     { id: 'instagram', label: 'Instagram', url: 'https://www.instagram.com/yantarne.fm/' },
     { id: 'facebook', label: 'Facebook', url: 'https://www.facebook.com/yantarne.fm' },
     { id: 'youtube', label: 'YouTube', url: 'https://www.youtube.com/channel/UCTaO-GLI_0srISh-Ase5NZw' },
@@ -39,7 +44,7 @@ export const NAV = [
   ['top-songs', 'Топ пісень'],
   ['about', 'Хто ми'],
   ['team', 'Команда'],
-  ['news', 'Новини'],
+  ['support', 'Підтримати'],
   ['ads', 'Реклама'],
   ['contacts', 'Контакти']
 ]
@@ -50,7 +55,7 @@ export const TICKER = [
   'Фестивалі',
   'Новини',
   'Музика без перерв',
-  'Yantarne.FM — сучасне українське радіо Новояворівська',
-  'Ранкове шоу «Не спати» — щобудня з 8:00',
+  'Yantarne.FM — радіо Новояворівська та Івано-Франкового',
+  'Ранкове шоу «Не спати» — щобудня 09:00–13:00',
   'Маєте новину? Надсилайте нам!'
 ]
