@@ -41,60 +41,6 @@ function Legend() {
   )
 }
 
-// Підпис під списком: коли звучать новини й погода в цей день
-function insertsNote(day) {
-  const ins = itemsForDay(day).filter(p => p.ins)
-  const news = ins.filter(p => p.k === 'news').length
-  const weather = ins.filter(p => p.k === 'weather').sort((a, b) => a.a - b.a).map(p => fmt(p.a))
-  const parts = []
-  if (news) parts.push(news > 6 ? 'новини щогодини' : 'новини о ' + ins.filter(p => p.k === 'news').map(p => fmt(p.a)).join(', '))
-  if (weather.length) parts.push('погода о ' + weather.join(', '))
-  return parts.length ? 'Між програмами: ' + parts.join('; ') + '. Усе разом — у детальній часовій шкалі.' : ''
-}
-
-// Простий список програм на обраний день (без вставок новин, погоди й реклами)
-function DayList({ day, today, hours, reminders, onRemind }) {
-  const reveal = useReveal()
-  const isToday = day === today
-  // однакові програми, що йдуть підряд (напр. «Музика без перерв» 12–19 і 19–20), показуємо одним рядком
-  const list = itemsForDay(day).filter(p => !p.ins).sort((a, b) => a.a - b.a)
-    .reduce((acc, p) => {
-      const last = acc[acc.length - 1]
-      if (last && last.t === p.t && last.k === p.k && Math.abs(last.b - p.a) < 1e-9) acc[acc.length - 1] = { ...last, b: p.b }
-      else acc.push(p)
-      return acc
-    }, [])
-  return (
-    <div className="tt-day reveal" ref={reveal}>
-      <h3 className="tt-day-title">{isToday ? 'Сьогодні, ' + DAY_FULL[day].toLowerCase() : DAY_FULL[day]}</h3>
-      <ol className="tt-list">
-        {list.map(p => {
-          const cur = isToday && hours >= p.a && hours < p.b
-          const past = isToday && hours >= p.b
-          const key = itemKey(day, p)
-          const on = !!reminders[key]
-          const canRemind = p.k !== 'music' && !past && !cur
-          return (
-            <li key={key} className={'tt-row' + (cur ? ' cur' : '') + (past ? ' past' : '') + (p.k === 'show' || p.k === 'special' ? ' hl' : '')}>
-              <span className="tt-row-time">{fmt(p.a)}–{fmt(p.b)}</span>
-              <div className="tt-row-main">
-                <b>{p.t}</b>
-                {p.h && <span className="tt-row-host">{p.h}</span>}
-                {(p.k === 'show' || p.k === 'special') && <span className="tt-row-desc">{p.x}</span>}
-              </div>
-              <div className="tt-row-side">
-                {cur && <span className="tt-row-live"><i />Зараз</span>}
-                {canRemind && <button type="button" className={'remind sm' + (on ? ' on' : '')} aria-pressed={on} aria-label={(on ? 'Скасувати нагадування: ' : 'Нагадати про ') + p.t} onClick={() => onRemind(key)}>{on ? '✓ Нагадаю' : 'Нагадати'}</button>}
-              </div>
-            </li>
-          )
-        })}
-      </ol>
-      <p className="tt-day-note">{insertsNote(day)}</p>
-    </div>
-  )
-}
-
 function Detail({ item, day, today, hours, reminders, onRemind, flashKey }) {
   const reveal = useReveal()
   const ref = useRef(null)
@@ -135,7 +81,6 @@ export default function Timetable() {
   const [day, setDay] = useState(today)
   const [selected, setSelected] = useState(null)
   const [phase, setPhase] = useState(0) // 0 — приховано, 1 — з'являються, 2 — показано
-  const [showLine, setShowLine] = useState(false) // детальна часова шкала (додатково)
   const [reminders, setReminders] = useLocalStorage('yfm-reminders', {})
   const notified = useRef({})
   const scroller = useRef(null)
@@ -158,7 +103,7 @@ export default function Timetable() {
     setSelected(first)
     requestAnimationFrame(() => scrollToHour(day === today ? n - 1.5 : first.a - 1, false))
     return () => { clearTimeout(id); clearTimeout(id2) }
-  }, [day, showLine]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [day]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // нагадування: браузерне сповіщення, коли програма починається (поки сайт відкритий)
   useEffect(() => {
@@ -220,15 +165,7 @@ export default function Timetable() {
 
         <NowNext today={today} hours={hours} current={current} />
 
-        <DayList day={day} today={today} hours={hours} reminders={reminders} onRemind={toggleReminder} />
-
-        <button type="button" className="tt-more" aria-expanded={showLine} aria-controls="tt-line" onClick={() => setShowLine(v => !v)}>
-          {showLine ? 'Сховати часову шкалу' : 'Детальна часова шкала'}
-          <span className="tt-more-sub">з новинами, погодою та рекламними блоками</span>
-        </button>
-
-        {showLine && (
-          <div id="tt-line" className="tt-line">
+        <div className="tt-line">
             <div className="tt-bar">
               <Legend />
               <div className="tt-nav">
@@ -279,8 +216,7 @@ export default function Timetable() {
             </div>
 
             <Detail item={selected} day={day} today={today} hours={hours} reminders={reminders} onRemind={toggleReminder} flashKey={selected ? itemKey(day, selected) : ''} />
-          </div>
-        )}
+        </div>
       </div>
     </section>
   )
