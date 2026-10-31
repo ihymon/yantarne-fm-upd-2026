@@ -8,12 +8,16 @@ import { HeroEq } from './Equalizer'
 import JukeboxBubbles from './JukeboxBubbles'
 import { JUKEBOX } from '../context/JukeboxContext'
 import { JukeboxLauncher } from './Jukebox'
+import Ghosts, { Pumpkins, isHalloween, useHalloweenFavicon } from './Ghosts'
+
+const HALLOWEEN = isHalloween()
 
 const TITLE = 'Yantarne.fm'
 
 export default function Hero({ view }) {
   const heroRef = useRef(null)
   const { status, track, show } = usePlayer()
+  useHalloweenFavicon(HALLOWEEN)
 
   const onMove = e => {
     const el = heroRef.current
@@ -32,6 +36,8 @@ export default function Hero({ view }) {
       <HeroSlider active={view === 'photo'} heroRef={heroRef} />
       <div className="blob a"></div><div className="blob b"></div><div className="spot"></div>
       <HeroEq />
+      {HALLOWEEN && <Ghosts />}
+      {HALLOWEEN && <Pumpkins />}
       {JUKEBOX.enabled && <JukeboxBubbles />}
       <div className="kicker">{STATION.communities.join(' · ').toUpperCase()}<span className="kicker-dot"> · </span><span className="kicker-since">З {STATION.since} РОКУ</span></div>
       <h1 className="title" lang="en" aria-label={TITLE}>
